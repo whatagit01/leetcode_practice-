@@ -1,0 +1,1532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pattern Drills</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: two-pane workbench — problem index rail on the left; problem brief, approach ladder and drag-and-drop bench on the right. */
+:root{
+  --bg:#f3f5fa; --rail:#eceff7; --surface:#ffffff; --well:#f7f8fc;
+  --ink:#141a2e; --muted:#5b6380; --line:#dde1ec; --line-strong:#c3c9db; --hover:#e2e6f2;
+  --accent:#3244d0; --accent-ink:#2533a8; --accent-soft:#e3e7fb; --on-accent:#ffffff;
+  --easy:#1d8656; --med:#b56a00; --hard:#c2363b;
+  --kw:#8a36b6; --str:#1d7a4b; --num:#b05700; --fn:#2c5bd0; --com:#8a90a6; --bi:#9a4a12;
+  --shadow:0 10px 30px rgba(24,32,72,.18);
+  --f-display:"Unbounded",system-ui,sans-serif;
+  --f-body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1220; --rail:#131729; --surface:#181d33; --well:#141829;
+  --ink:#e6e8f3; --muted:#9aa1bd; --line:#2a3052; --line-strong:#3b4370; --hover:#20264a;
+  --accent:#8f9dff; --accent-ink:#b8c1ff; --accent-soft:#232a55; --on-accent:#0f1220;
+  --easy:#4cc98d; --med:#f0a640; --hard:#ff6d70;
+  --kw:#d39cff; --str:#7fd8a6; --num:#ffb36b; --fn:#93b2ff; --com:#6f7696; --bi:#f2b28a;
+  --shadow:0 12px 34px rgba(0,0,0,.5); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f1220; --rail:#131729; --surface:#181d33; --well:#141829;
+  --ink:#e6e8f3; --muted:#9aa1bd; --line:#2a3052; --line-strong:#3b4370; --hover:#20264a;
+  --accent:#8f9dff; --accent-ink:#b8c1ff; --accent-soft:#232a55; --on-accent:#0f1220;
+  --easy:#4cc98d; --med:#f0a640; --hard:#ff6d70;
+  --kw:#d39cff; --str:#7fd8a6; --num:#ffb36b; --fn:#93b2ff; --com:#6f7696; --bi:#f2b28a;
+  --shadow:0 12px 34px rgba(0,0,0,.5); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:288px minmax(0,1fr);min-height:100vh}
+
+/* ---------- Rail ---------- */
+.rail{position:sticky;top:env(safe-area-inset-top,0px);height:100vh;overflow:auto;background:var(--rail);border-right:1px solid var(--line);padding:22px 14px 28px}
+.brand{font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.01em;padding:0 8px}
+.brand span{color:var(--accent)}
+.tag{color:var(--muted);font-size:13px;padding:2px 8px 0;margin:0}
+.progress{margin:18px 8px 6px}
+.pbar{height:6px;border-radius:6px;background:var(--line);overflow:hidden}
+.pbar span{display:block;height:100%;background:var(--accent);border-radius:6px;transition:width .4s}
+.ptext{font-size:12.5px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}
+.ptext b{color:var(--ink)}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:14px 8px 4px}
+.chip{border:1px solid var(--line-strong);background:transparent;border-radius:999px;padding:3px 11px;font-size:12.5px;cursor:pointer;color:var(--muted)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.pat h3{font-family:var(--f-display);font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:20px 8px 6px;display:flex;justify-content:space-between;gap:8px}
+.pat ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.prob{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:9px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:7px 8px;border-radius:8px;font-size:14px;cursor:pointer}
+.prob:hover{background:var(--hover)}
+.prob.on{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+.prob .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dl{font-family:var(--f-mono);font-size:10px;font-weight:600;width:19px;height:19px;display:grid;place-items:center;border-radius:5px}
+.d-Easy{color:var(--easy);background:color-mix(in srgb,var(--easy) 14%,transparent)}
+.d-Medium{color:var(--med);background:color-mix(in srgb,var(--med) 14%,transparent)}
+.d-Hard{color:var(--hard);background:color-mix(in srgb,var(--hard) 14%,transparent)}
+.dots{display:flex;gap:3px}
+.dots i{width:7px;height:7px;border-radius:50%;border:1.5px solid var(--line-strong)}
+.dots i.y{background:var(--easy);border-color:var(--easy)}
+.clear{margin:24px 8px 0;background:none;border:0;color:var(--muted);font-size:12.5px;cursor:pointer;text-decoration:underline;padding:0}
+.scrim{display:none}
+
+/* ---------- Main ---------- */
+.main{padding-block:26px 60px;padding-inline:36px;max-width:1200px;width:100%;display:flex;flex-direction:column;gap:22px;min-width:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.menu{display:none}
+.nav-btns{display:flex;gap:6px;margin-left:auto}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-strong);background:var(--surface);border-radius:8px;padding:7px 13px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{filter:brightness(1.08);color:var(--on-accent)}
+.btn.quiet{background:transparent}
+.btn:disabled{opacity:.45;cursor:default}
+.eyebrow{font-family:var(--f-mono);font-size:12px;color:var(--muted);letter-spacing:.02em}
+.ptitle{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:4px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(22px,3vw,30px);letter-spacing:-.02em;line-height:1.15;margin:0;text-wrap:balance}
+.pill{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px}
+.brief{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px;align-items:start}
+.brief p{margin:0;max-width:62ch}
+.example{font-family:var(--f-mono);font-size:12.5px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.example b{display:block;font-family:var(--f-body);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
+
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.sec-h h2{font-family:var(--f-display);font-weight:500;font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin:0}
+.sec-h small{color:var(--muted);font-size:13px}
+
+/* Approach ladder */
+.ladder{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.ap{display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;position:relative;min-width:0}
+.ap:hover{border-color:var(--line-strong)}
+.ap.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.ap-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tier{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase}
+.t-brute{color:var(--hard)} .t-better{color:var(--med)} .t-optimal{color:var(--easy)}
+.step{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.done{font-size:11.5px;font-weight:600;color:var(--easy)}
+.ap-name{font-weight:600;font-size:15px;line-height:1.3}
+.ap-cx{display:flex;gap:14px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.ap-cx b{font-family:var(--f-mono);font-weight:600;color:var(--ink);font-size:12.5px}
+.meter{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:2px}
+.meter i{height:5px;border-radius:2px;background:var(--line)}
+.meter.g i.f{background:var(--easy)} .meter.a i.f{background:var(--med)} .meter.r i.f{background:var(--hard)}
+.scale{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-family:var(--f-mono);font-size:10px;color:var(--muted);margin-top:8px}
+.scale span{text-align:center;white-space:nowrap}
+
+/* Bench */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.toggle{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted);margin-left:auto;cursor:pointer}
+.toggle input{accent-color:var(--accent);width:16px;height:16px}
+.bench{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:16px;margin-top:12px;align-items:start}
+.panel{min-width:0}
+.panel-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 2px 7px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+.panel-h span:last-child{letter-spacing:0;text-transform:none;font-weight:500;font-variant-numeric:tabular-nums}
+.droplist{display:flex;flex-direction:column;gap:6px;min-height:180px;padding:10px;border:1.5px dashed var(--line-strong);border-radius:12px;background:var(--well);position:relative}
+.solwrap{counter-reset:ln var(--start,0)}
+.solwrap .locked{margin:0 0 6px}
+.empty{color:var(--muted);font-size:13.5px;text-align:center;padding:28px 12px;margin:auto 0}
+.line{display:flex;align-items:stretch;background:var(--surface);border:1px solid var(--line);border-radius:7px;cursor:grab;user-select:none;-webkit-user-select:none;font-family:var(--f-mono);font-size:12.8px;line-height:1.45;transition:border-color .15s,background .15s;min-width:0}
+.line:hover{border-color:var(--line-strong)}
+.line .grip{flex:none;width:20px;touch-action:none;cursor:grab;background-image:radial-gradient(var(--line-strong) 1.2px,transparent 1.4px);background-size:6px 6px;background-position:center;background-repeat:repeat-y;background-clip:content-box;padding:8px 6px;border-right:1px solid var(--line)}
+.solwrap .line::before{counter-increment:ln;content:counter(ln);flex:none;width:2.4em;text-align:right;padding:7px 8px 0 0;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.line .ind{flex:none;width:1.9em;border-left:1px dotted var(--line-strong);margin-left:.55em}
+.line .ind:first-of-type{margin-left:.7em}
+.line code{flex:1;min-width:0;padding:7px 10px 7px 8px;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}
+.line.lock{cursor:default;background:transparent;border-style:dashed;color:var(--muted)}
+.line.lock .grip{background-image:none;display:grid;place-items:center;font-size:10px}
+.line.ok{border-color:var(--easy);background:color-mix(in srgb,var(--easy) 9%,var(--surface))}
+.line.bad{border-color:var(--hard);background:color-mix(in srgb,var(--hard) 9%,var(--surface))}
+.line.hinted{box-shadow:0 0 0 2px var(--accent)}
+.line.flash{animation:flash .6s}
+@keyframes flash{from{background:var(--accent-soft)}}
+.ph{border:2px dashed var(--accent);border-radius:7px;background:var(--accent-soft)}
+.ghost{position:fixed;z-index:1000;pointer-events:none;box-shadow:var(--shadow);transform:rotate(.8deg);opacity:.96;margin:0}
+body.dragging,body.dragging *{cursor:grabbing!important}
+.kw{color:var(--kw);font-weight:600}.str{color:var(--str)}.num{color:var(--num)}.fn{color:var(--fn)}.com{color:var(--com);font-style:italic}.bi{color:var(--bi)}
+.imports{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin:8px 4px 0}
+.msg{margin-top:12px;font-size:14px;color:var(--muted);min-height:1.5em}
+.msg b{color:var(--ink)}
+.msg.bad b{color:var(--hard)}
+
+/* Explain */
+.idea{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.idea summary{cursor:pointer;font-weight:600}
+.idea p{margin:8px 0 2px;max-width:70ch;color:var(--muted)}
+.win{border:1px solid var(--easy);background:color-mix(in srgb,var(--easy) 8%,var(--surface));border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.win.shown{border-color:var(--line-strong);background:var(--surface)}
+.win-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--on-accent);background:var(--easy);padding:3px 9px;border-radius:999px}
+.win.shown .badge{background:var(--muted)}
+.win h3{margin:0;font-size:17px}
+.win .cx{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.win p{margin:0;max-width:72ch}
+.win-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{position:fixed;top:0;left:0;bottom:0;height:auto;width:min(320px,86vw);z-index:50;transform:translateX(-102%);transition:transform .25s ease;padding-top:calc(22px + env(safe-area-inset-top,0px))}
+  .rail.open{transform:none;box-shadow:var(--shadow)}
+  .scrim.open{display:block;position:fixed;inset:0;background:rgba(10,14,30,.4);z-index:40}
+  .menu{display:inline-flex}
+  .main{padding-inline:16px;padding-block:16px 48px}
+  .brief{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:760px){
+  .bench{grid-template-columns:minmax(0,1fr)}
+  .panel.sol{order:-1}
+  .toggle{margin-left:0;width:100%}
+  .scale{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="rail" id="rail" aria-label="Problems">
+    <div class="brand">Pattern<span>.</span>Drills</div>
+    <p class="tag">Order the lines. Climb from brute force to optimal.</p>
+    <div class="progress" id="progress"></div>
+    <div class="filters" id="filters" role="group" aria-label="Difficulty filter"></div>
+    <nav id="nav"></nav>
+    <button class="clear" id="clear">Clear my progress</button>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <main class="main">
+    <div class="topbar">
+      <button class="btn menu" id="menu" aria-controls="rail">☰ Problems</button>
+      <div class="nav-btns">
+        <button class="btn quiet" id="prev">← Prev</button>
+        <button class="btn quiet" id="next">Next →</button>
+      </div>
+    </div>
+
+    <header>
+      <div class="eyebrow" id="eyebrow"></div>
+      <div class="ptitle"><h1 id="title"></h1><span class="pill" id="diff"></span></div>
+    </header>
+
+    <section class="brief">
+      <p id="prompt"></p>
+      <pre class="example" id="example"></pre>
+    </section>
+
+    <section>
+      <div class="sec-h"><h2>Approach ladder</h2><small>Slowest on the left, most optimal on the right. Bars show time complexity.</small></div>
+      <div class="ladder" id="ladder"></div>
+    </section>
+
+    <section>
+      <div class="toolbar">
+        <button class="btn primary" id="check">Check order</button>
+        <button class="btn" id="hint">Hint: place next line</button>
+        <button class="btn" id="reveal">Show solution</button>
+        <button class="btn quiet" id="reset">Reset</button>
+        <label class="toggle"><input type="checkbox" id="decoys"> Include decoy lines</label>
+      </div>
+      <div class="bench">
+        <div class="panel bankp">
+          <div class="panel-h"><span>Snippets</span><span id="bankCount"></span></div>
+          <div class="droplist" id="bank" data-list="bank"></div>
+        </div>
+        <div class="panel sol">
+          <div class="panel-h"><span>Your solution</span><span id="solCount"></span></div>
+          <div class="droplist solwrap" id="solbox">
+            <div class="locked" id="locked"></div>
+            <div id="sol" data-list="sol" class="droptarget" style="display:flex;flex-direction:column;gap:6px;min-height:120px"></div>
+          </div>
+          <div class="imports" id="imports"></div>
+        </div>
+      </div>
+      <div class="msg" id="msg" aria-live="polite"></div>
+    </section>
+
+    <section id="explain"></section>
+  </main>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   Problem data. Each approach's code is Python.
+   Lines prefixed "~x" belong to swap-group x: consecutive lines in the
+   same group can go in any order and still count as correct.
+   Everything up to and including the "def" line is given to the user.
+------------------------------------------------------------------- */
+const PATTERNS = [
+{ id:"hash", name:"Hash Map & Set", problems:[
+  { id:"two-sum", num:1, title:"Two Sum", diff:"Easy",
+    prompt:"Given an integer array nums and an integer target, return the indices of the two numbers that add up to target. Exactly one answer exists, and you may not use the same element twice.",
+    example:"nums = [2, 7, 11, 15], target = 9\n→ [0, 1]   # 2 + 7 = 9",
+    approaches:[
+      { tier:"brute", name:"Check every pair", time:"O(n²)", space:"O(1)", r:4,
+        idea:"Try every pair (i, j) with j after i and return the first pair that sums to target. Simple and correct, but the nested loops make it quadratic.",
+        code:`
+def twoSum(nums, target):
+    for i in range(len(nums)):
+        for j in range(i + 1, len(nums)):
+            if nums[i] + nums[j] == target:
+                return [i, j]
+    return []`,
+        decoys:["        for j in range(len(nums)):"] },
+      { tier:"better", name:"Sort, then two pointers", time:"O(n log n)", space:"O(n)", r:3,
+        idea:"Sort (value, index) pairs so you keep the original indices. Then move a low and a high pointer inward: a sum that's too small moves low up, a sum that's too big moves high down.",
+        code:`
+def twoSum(nums, target):
+    pairs = sorted((v, i) for i, v in enumerate(nums))
+    lo, hi = 0, len(pairs) - 1
+    while lo < hi:
+        s = pairs[lo][0] + pairs[hi][0]
+        if s == target:
+            return [pairs[lo][1], pairs[hi][1]]
+        elif s < target:
+            lo += 1
+        else:
+            hi -= 1
+    return []`,
+        decoys:["    nums.sort()","            hi += 1"] },
+      { tier:"optimal", name:"One-pass hash map", time:"O(n)", space:"O(n)", r:2,
+        idea:"Walk the array once. For each number, the partner you need is target − num. If you've already seen it, you're done; otherwise record this number's index. Check before you insert, so an element never pairs with itself.",
+        code:`
+def twoSum(nums, target):
+    seen = {}
+    for i, num in enumerate(nums):
+        need = target - num
+        if need in seen:
+            return [seen[need], i]
+        seen[num] = i
+    return []`,
+        decoys:["        seen[i] = num","        if num in seen:"] }
+    ]},
+  { id:"group-anagrams", num:49, title:"Group Anagrams", diff:"Medium",
+    prompt:"Given a list of strings, group together the words that are anagrams of each other. The groups can be returned in any order.",
+    example:'strs = ["eat","tea","tan","ate","nat","bat"]\n→ [["eat","tea","ate"], ["tan","nat"], ["bat"]]',
+    approaches:[
+      { tier:"brute", name:"Compare every pair", time:"O(n² · k log k)", space:"O(n)", r:4.6,
+        idea:"For each unused word, start a group and scan the rest of the list, adding every unused word whose sorted letters match. Correct, but each word gets compared with every other word.",
+        code:`
+def groupAnagrams(strs):
+    res, used = [], [False] * len(strs)
+    for i in range(len(strs)):
+        if used[i]:
+            continue
+        group = [strs[i]]
+        for j in range(i + 1, len(strs)):
+            if not used[j] and sorted(strs[i]) == sorted(strs[j]):
+                group.append(strs[j])
+                used[j] = True
+        res.append(group)
+    return res`,
+        decoys:["            break"] },
+      { tier:"better", name:"Sorted word as the key", time:"O(n · k log k)", space:"O(n · k)", r:3,
+        idea:"Anagrams share the same letters, so sorting a word gives a key that every anagram shares. Bucket words by that key in a dictionary of lists.",
+        code:`
+def groupAnagrams(strs):
+    groups = defaultdict(list)
+    for s in strs:
+        key = "".join(sorted(s))
+        groups[key].append(s)
+    return list(groups.values())`,
+        decoys:["        groups[s].append(key)"] },
+      { tier:"optimal", name:"Letter-count key", time:"O(n · k)", space:"O(n · k)", r:2,
+        idea:"Skip the sort: count the 26 letters of each word and use the counts (as a tuple, since lists can't be dict keys) as the bucket key. That's linear in the total number of characters.",
+        code:`
+def groupAnagrams(strs):
+    groups = defaultdict(list)
+    for s in strs:
+        count = [0] * 26
+        for ch in s:
+            count[ord(ch) - ord("a")] += 1
+        groups[tuple(count)].append(s)
+    return list(groups.values())`,
+        decoys:["        groups[count].append(s)","    count = [0] * 26"] }
+    ]},
+  { id:"longest-consecutive", num:128, title:"Longest Consecutive Sequence", diff:"Medium",
+    prompt:"Given an unsorted array of integers, return the length of the longest run of consecutive values (like 1, 2, 3, 4). The run doesn't need to be contiguous in the array.",
+    example:"nums = [100, 4, 200, 1, 3, 2]\n→ 4   # 1, 2, 3, 4",
+    approaches:[
+      { tier:"brute", name:"Count up from every number", time:"O(n³)", space:"O(1)", r:5,
+        idea:"From each number, keep checking whether the next value exists. Membership in a list is a linear scan, so a long run inside a long list gets very slow.",
+        code:`
+def longestConsecutive(nums):
+    best = 0
+    for n in nums:
+        length = 1
+        while n + length in nums:
+            length += 1
+        best = max(best, length)
+    return best`,
+        decoys:["        length = 0"] },
+      { tier:"better", name:"Sort and scan", time:"O(n log n)", space:"O(1)", r:3,
+        idea:"After sorting, consecutive values sit next to each other. Walk once, skip duplicates, extend the current run when the step is +1 and restart it otherwise.",
+        code:`
+def longestConsecutive(nums):
+    if not nums:
+        return 0
+    nums.sort()
+    best = cur = 1
+    for i in range(1, len(nums)):
+        if nums[i] == nums[i - 1]:
+            continue
+        if nums[i] == nums[i - 1] + 1:
+            cur += 1
+        else:
+            cur = 1
+        best = max(best, cur)
+    return best`,
+        decoys:["            cur = 0"] },
+      { tier:"optimal", name:"Hash set, start at run heads", time:"O(n)", space:"O(n)", r:2,
+        idea:"Put everything in a set. Only start counting from a number whose predecessor is missing, because that's the head of a run. Every number is then visited a constant number of times.",
+        code:`
+def longestConsecutive(nums):
+~a    num_set = set(nums)
+~a    best = 0
+    for n in num_set:
+        if n - 1 not in num_set:
+            length = 1
+            while n + length in num_set:
+                length += 1
+            best = max(best, length)
+    return best`,
+        decoys:["        if n + 1 not in num_set:","            while n + length in nums:"] }
+    ]}
+]},
+{ id:"twoptr", name:"Two Pointers", problems:[
+  { id:"valid-palindrome", num:125, title:"Valid Palindrome", diff:"Easy",
+    prompt:"A phrase is a palindrome if, after lowercasing it and removing every non-alphanumeric character, it reads the same forwards and backwards. Return whether s is a palindrome.",
+    example:'s = "A man, a plan, a canal: Panama"\n→ True',
+    approaches:[
+      { tier:"brute", name:"Clean, then reverse", time:"O(n)", space:"O(n)", r:2.4,
+        idea:"Build a cleaned list of lowercase alphanumeric characters and compare it with its reverse. Linear time, but it allocates two extra copies of the string.",
+        code:`
+def isPalindrome(s):
+    cleaned = [c.lower() for c in s if c.isalnum()]
+    return cleaned == cleaned[::-1]`,
+        decoys:["    return cleaned == cleaned.reverse()"] },
+      { tier:"optimal", name:"Pointers from both ends", time:"O(n)", space:"O(1)", r:2,
+        idea:"Put one pointer at each end. Skip characters that aren't letters or digits, compare the two characters case-insensitively, then step both pointers inward. No copies needed.",
+        code:`
+def isPalindrome(s):
+    l, r = 0, len(s) - 1
+    while l < r:
+        while l < r and not s[l].isalnum():
+            l += 1
+        while l < r and not s[r].isalnum():
+            r -= 1
+        if s[l].lower() != s[r].lower():
+            return False
+        l, r = l + 1, r - 1
+    return True`,
+        decoys:["    while l <= len(s):","            r += 1"] }
+    ]},
+  { id:"three-sum", num:15, title:"3Sum", diff:"Medium",
+    prompt:"Return all unique triplets [a, b, c] from nums such that a + b + c = 0. The answer must not contain duplicate triplets.",
+    example:"nums = [-1, 0, 1, 2, -1, -4]\n→ [[-1, -1, 2], [-1, 0, 1]]",
+    approaches:[
+      { tier:"brute", name:"Three nested loops", time:"O(n³)", space:"O(n)", r:5,
+        idea:"Try every triplet. Sorting each matching triplet and storing it in a set removes duplicates.",
+        code:`
+def threeSum(nums):
+~a    res = set()
+~a    n = len(nums)
+    for i in range(n):
+        for j in range(i + 1, n):
+            for k in range(j + 1, n):
+                if nums[i] + nums[j] + nums[k] == 0:
+                    res.add(tuple(sorted((nums[i], nums[j], nums[k]))))
+    return [list(t) for t in res]`,
+        decoys:["            for k in range(n):"] },
+      { tier:"better", name:"Fix one, Two Sum the rest", time:"O(n²)", space:"O(n)", r:4,
+        idea:"Fix nums[i], then the problem is Two Sum with target −nums[i]. A fresh hash set for each i finds the third number in O(1).",
+        code:`
+def threeSum(nums):
+    res = set()
+    for i in range(len(nums)):
+        seen = set()
+        for j in range(i + 1, len(nums)):
+            need = -nums[i] - nums[j]
+            if need in seen:
+                res.add(tuple(sorted((nums[i], nums[j], need))))
+            seen.add(nums[j])
+    return [list(t) for t in res]`,
+        decoys:["    seen = set()"] },
+      { tier:"optimal", name:"Sort + two pointers", time:"O(n²)", space:"O(1)", r:3.9,
+        idea:"Sort first. For each i, squeeze l and r toward each other: too small moves l right, too big moves r left. Skipping equal neighbours avoids duplicates without any set. Same time as the hash approach, but constant extra space.",
+        code:`
+def threeSum(nums):
+~a    nums.sort()
+~a    res = []
+    for i in range(len(nums) - 2):
+        if i > 0 and nums[i] == nums[i - 1]:
+            continue
+        l, r = i + 1, len(nums) - 1
+        while l < r:
+            s = nums[i] + nums[l] + nums[r]
+            if s < 0:
+                l += 1
+            elif s > 0:
+                r -= 1
+            else:
+                res.append([nums[i], nums[l], nums[r]])
+                l += 1
+                while l < r and nums[l] == nums[l - 1]:
+                    l += 1
+    return res`,
+        decoys:["                r += 1","        if nums[i] == nums[i + 1]:"] }
+    ]},
+  { id:"trapping-rain-water", num:42, title:"Trapping Rain Water", diff:"Hard",
+    prompt:"Given non-negative bar heights of width 1, compute how much rain water is trapped between the bars after it rains.",
+    example:"height = [0,1,0,2,1,0,1,3,2,1,2,1]\n→ 6",
+    approaches:[
+      { tier:"brute", name:"Scan left and right per bar", time:"O(n²)", space:"O(1)", r:4,
+        idea:"Water above bar i is min(tallest bar on the left, tallest on the right) minus its own height. Finding both maxima for every bar costs a full scan each time.",
+        code:`
+def trap(height):
+    water = 0
+    for i in range(len(height)):
+~a        left = max(height[:i + 1])
+~a        right = max(height[i:])
+        water += min(left, right) - height[i]
+    return water`,
+        decoys:["        water += max(left, right) - height[i]"] },
+      { tier:"better", name:"Prefix max arrays", time:"O(n)", space:"O(n)", r:2.4,
+        idea:"Precompute the running max from the left and from the right in two passes. Then every bar's water is one lookup in each array.",
+        code:`
+def trap(height):
+    n = len(height)
+    if n == 0:
+        return 0
+    left, right = [0] * n, [0] * n
+    left[0], right[-1] = height[0], height[-1]
+    for i in range(1, n):
+        left[i] = max(left[i - 1], height[i])
+    for i in range(n - 2, -1, -1):
+        right[i] = max(right[i + 1], height[i])
+    return sum(min(left[i], right[i]) - height[i] for i in range(n))`,
+        decoys:["        right[i] = max(right[i - 1], height[i])"] },
+      { tier:"optimal", name:"Two pointers", time:"O(n)", space:"O(1)", r:2,
+        idea:"Move inward from the shorter side. Whichever side is lower is bounded by its own running max, because the other side is guaranteed to be at least as tall. That removes the need for the arrays.",
+        code:`
+def trap(height):
+~a    l, r = 0, len(height) - 1
+~a    left_max = right_max = water = 0
+    while l < r:
+        if height[l] < height[r]:
+            left_max = max(left_max, height[l])
+            water += left_max - height[l]
+            l += 1
+        else:
+            right_max = max(right_max, height[r])
+            water += right_max - height[r]
+            r -= 1
+    return water`,
+        decoys:["            water += right_max - height[l]","    while l <= r:"] }
+    ]}
+]},
+{ id:"window", name:"Sliding Window", problems:[
+  { id:"best-time-stock", num:121, title:"Best Time to Buy and Sell Stock", diff:"Easy",
+    prompt:"prices[i] is a stock's price on day i. Pick one day to buy and a later day to sell. Return the maximum profit, or 0 if no profit is possible.",
+    example:"prices = [7, 1, 5, 3, 6, 4]\n→ 5   # buy at 1, sell at 6",
+    approaches:[
+      { tier:"brute", name:"Every buy/sell pair", time:"O(n²)", space:"O(1)", r:4,
+        idea:"Try every buy day with every later sell day and keep the best difference.",
+        code:`
+def maxProfit(prices):
+    best = 0
+    for i in range(len(prices)):
+        for j in range(i + 1, len(prices)):
+            best = max(best, prices[j] - prices[i])
+    return best`,
+        decoys:["            best = max(best, prices[i] - prices[j])"] },
+      { tier:"optimal", name:"Track the lowest price so far", time:"O(n)", space:"O(1)", r:2,
+        idea:"The best sale today is today's price minus the cheapest price seen before it. Keep that running minimum as the left edge of the window and update the best profit as you go.",
+        code:`
+def maxProfit(prices):
+~a    lowest = float("inf")
+~a    best = 0
+    for p in prices:
+~b        lowest = min(lowest, p)
+~b        best = max(best, p - lowest)
+    return best`,
+        decoys:["        lowest = max(lowest, p)","    best = float(\"inf\")"] }
+    ]},
+  { id:"longest-substring", num:3, title:"Longest Substring Without Repeating Characters", diff:"Medium",
+    prompt:"Return the length of the longest substring of s that contains no repeated characters.",
+    example:'s = "abcabcbb"\n→ 3   # "abc"',
+    approaches:[
+      { tier:"brute", name:"Grow from every start", time:"O(n²)", space:"O(k)", r:4,
+        idea:"From each start index, extend to the right until a character repeats, tracking the longest stretch.",
+        code:`
+def lengthOfLongestSubstring(s):
+    best = 0
+    for i in range(len(s)):
+        seen = set()
+        for j in range(i, len(s)):
+            if s[j] in seen:
+                break
+~a            seen.add(s[j])
+~a            best = max(best, j - i + 1)
+    return best`,
+        decoys:["                continue"] },
+      { tier:"better", name:"Window with a set", time:"O(n)", space:"O(k)", r:2.3,
+        idea:"Grow the window with r. When s[r] is already inside, shrink from the left until it's gone. Each character enters and leaves the window at most once.",
+        code:`
+def lengthOfLongestSubstring(s):
+~a    seen = set()
+~a    l = best = 0
+    for r in range(len(s)):
+        while s[r] in seen:
+            seen.remove(s[l])
+            l += 1
+~b        seen.add(s[r])
+~b        best = max(best, r - l + 1)
+    return best`,
+        decoys:["        if s[r] in seen:","            seen.remove(s[r])"] },
+      { tier:"optimal", name:"Jump with last-seen index", time:"O(n)", space:"O(k)", r:2,
+        idea:"Remember where each character was last seen. On a repeat inside the window, jump l straight past the old position instead of shrinking one step at a time.",
+        code:`
+def lengthOfLongestSubstring(s):
+~a    last = {}
+~a    l = best = 0
+    for r, ch in enumerate(s):
+        if ch in last and last[ch] >= l:
+            l = last[ch] + 1
+~b        last[ch] = r
+~b        best = max(best, r - l + 1)
+    return best`,
+        decoys:["            l = last[ch]","        if ch in last:"] }
+    ]},
+  { id:"min-window", num:76, title:"Minimum Window Substring", diff:"Hard",
+    prompt:"Given strings s and t, return the shortest substring of s that contains every character of t (including duplicates). Return an empty string if there isn't one.",
+    example:'s = "ADOBECODEBANC", t = "ABC"\n→ "BANC"',
+    approaches:[
+      { tier:"brute", name:"Grow from every start", time:"O(n² · k)", space:"O(k)", r:4.6,
+        idea:"From each start, extend right one character at a time and test whether the window covers t. The first covering window from each start is the shortest for that start.",
+        code:`
+def minWindow(s, t):
+~a    need = Counter(t)
+~a    best = ""
+    for i in range(len(s)):
+        window = Counter()
+        for j in range(i, len(s)):
+            window[s[j]] += 1
+            if all(window[c] >= need[c] for c in need):
+                if not best or j - i + 1 < len(best):
+                    best = s[i:j + 1]
+                break
+    return best`,
+        decoys:["    window = Counter()"] },
+      { tier:"optimal", name:"Expand right, shrink left", time:"O(n + m)", space:"O(k)", r:2,
+        idea:"Keep a count of characters still needed and a missing counter. Expand r until nothing is missing, then drop surplus characters from the left, record the window, and give up one needed character to keep sliding.",
+        code:`
+def minWindow(s, t):
+~a    need = Counter(t)
+~a    missing = len(t)
+~a    l = start = end = 0
+    for r, ch in enumerate(s, 1):
+        if need[ch] > 0:
+            missing -= 1
+        need[ch] -= 1
+        if missing == 0:
+            while need[s[l]] < 0:
+                need[s[l]] += 1
+                l += 1
+            if end == 0 or r - l < end - start:
+                start, end = l, r
+~b            need[s[l]] += 1
+~b            missing += 1
+            l += 1
+    return s[start:end]`,
+        decoys:["            while need[s[l]] > 0:","        need[ch] += 1"] }
+    ]}
+]},
+{ id:"stack", name:"Stack", problems:[
+  { id:"valid-parentheses", num:20, title:"Valid Parentheses", diff:"Easy",
+    prompt:"Given a string of the characters ()[]{}, return whether every bracket is closed by the same type in the correct order.",
+    example:'s = "()[]{}"  → True\ns = "(]"      → False',
+    approaches:[
+      { tier:"brute", name:"Delete matched pairs", time:"O(n²)", space:"O(n)", r:4,
+        idea:"Any valid string contains an adjacent pair like (). Keep deleting those pairs until none are left; a valid string ends up empty. Each pass rebuilds the string, which is quadratic overall.",
+        code:`
+def isValid(s):
+    while "()" in s or "[]" in s or "{}" in s:
+        s = s.replace("()", "").replace("[]", "").replace("{}", "")
+    return s == ""`,
+        decoys:["    return len(s) % 2 == 0"] },
+      { tier:"optimal", name:"Stack of open brackets", time:"O(n)", space:"O(n)", r:2,
+        idea:"Push every opener. A closer must match the most recent unmatched opener, which is the top of the stack. At the end the stack must be empty.",
+        code:`
+def isValid(s):
+~a    pairs = {")": "(", "]": "[", "}": "{"}
+~a    stack = []
+    for ch in s:
+        if ch in pairs:
+            if not stack or stack.pop() != pairs[ch]:
+                return False
+        else:
+            stack.append(ch)
+    return not stack`,
+        decoys:["    return True","            stack.append(pairs[ch])"] }
+    ]},
+  { id:"daily-temperatures", num:739, title:"Daily Temperatures", diff:"Medium",
+    prompt:"For each day, return how many days you'd wait for a warmer temperature, or 0 if none comes.",
+    example:"temps = [73,74,75,71,69,72,76,73]\n→ [1,1,4,2,1,1,0,0]",
+    approaches:[
+      { tier:"brute", name:"Scan ahead from each day", time:"O(n²)", space:"O(1)", r:4,
+        idea:"For each day, look forward until a warmer day appears.",
+        code:`
+def dailyTemperatures(temps):
+    res = [0] * len(temps)
+    for i in range(len(temps)):
+        for j in range(i + 1, len(temps)):
+            if temps[j] > temps[i]:
+                res[i] = j - i
+                break
+    return res`,
+        decoys:["                res[i] = j"] },
+      { tier:"optimal", name:"Monotonic stack", time:"O(n)", space:"O(n)", r:2,
+        idea:"Keep a stack of indices still waiting for a warmer day, with temperatures decreasing from bottom to top. Today's temperature resolves every cooler day on top of the stack at once.",
+        code:`
+def dailyTemperatures(temps):
+~a    res = [0] * len(temps)
+~a    stack = []
+    for i, t in enumerate(temps):
+        while stack and temps[stack[-1]] < t:
+            j = stack.pop()
+            res[j] = i - j
+        stack.append(i)
+    return res`,
+        decoys:["        if stack and temps[stack[-1]] < t:","        stack.append(t)"] }
+    ]},
+  { id:"largest-rectangle", num:84, title:"Largest Rectangle in Histogram", diff:"Hard",
+    prompt:"Given bar heights of width 1, return the area of the largest rectangle that fits inside the histogram.",
+    example:"heights = [2, 1, 5, 6, 2, 3]\n→ 10   # bars 5 and 6, height 5",
+    approaches:[
+      { tier:"brute", name:"Every range, track the min", time:"O(n²)", space:"O(1)", r:4,
+        idea:"For each left edge, extend right while tracking the lowest bar. The rectangle for that range is lowest × width.",
+        code:`
+def largestRectangleArea(heights):
+    best = 0
+    for i in range(len(heights)):
+        low = heights[i]
+        for j in range(i, len(heights)):
+            low = min(low, heights[j])
+            best = max(best, low * (j - i + 1))
+    return best`,
+        decoys:["            low = max(low, heights[j])"] },
+      { tier:"optimal", name:"Monotonic stack", time:"O(n)", space:"O(n)", r:2,
+        idea:"Keep (start, height) on a stack with increasing heights. When a shorter bar arrives, each taller bar on the stack can't extend further right, so pop it and score its rectangle. The shorter bar inherits the popped start. A trailing 0 flushes the stack.",
+        code:`
+def largestRectangleArea(heights):
+~a    stack = []
+~a    best = 0
+    for i, h in enumerate(heights + [0]):
+        start = i
+        while stack and stack[-1][1] > h:
+            idx, height = stack.pop()
+            best = max(best, height * (i - idx))
+            start = idx
+        stack.append((start, h))
+    return best`,
+        decoys:["        stack.append((i, h))","            best = max(best, h * (i - idx))"] }
+    ]}
+]},
+{ id:"bsearch", name:"Binary Search", problems:[
+  { id:"binary-search", num:704, title:"Binary Search", diff:"Easy",
+    prompt:"Given a sorted array and a target, return the target's index, or -1 if it isn't there.",
+    example:"nums = [-1, 0, 3, 5, 9, 12], target = 9\n→ 4",
+    approaches:[
+      { tier:"brute", name:"Linear scan", time:"O(n)", space:"O(1)", r:2,
+        idea:"Check every element. Correct, but it ignores that the array is sorted.",
+        code:`
+def search(nums, target):
+    for i, v in enumerate(nums):
+        if v == target:
+            return i
+    return -1`,
+        decoys:["            return v"] },
+      { tier:"optimal", name:"Halve the range", time:"O(log n)", space:"O(1)", r:1,
+        idea:"Compare with the middle element and throw away the half that can't contain the target. The inclusive bounds need lo <= hi, and both updates must move past mid or the loop can stall.",
+        code:`
+def search(nums, target):
+    lo, hi = 0, len(nums) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if nums[mid] == target:
+            return mid
+        elif nums[mid] < target:
+            lo = mid + 1
+        else:
+            hi = mid - 1
+    return -1`,
+        decoys:["    while lo < hi:","            lo = mid"] }
+    ]},
+  { id:"rotated-search", num:33, title:"Search in Rotated Sorted Array", diff:"Medium",
+    prompt:"A sorted array of distinct values was rotated at an unknown pivot (e.g. [0,1,2,4,5,6,7] became [4,5,6,7,0,1,2]). Return the index of target, or -1.",
+    example:"nums = [4, 5, 6, 7, 0, 1, 2], target = 0\n→ 4",
+    approaches:[
+      { tier:"brute", name:"Linear scan", time:"O(n)", space:"O(1)", r:2,
+        idea:"Check every element. It works, but the problem is designed to be solved in O(log n).",
+        code:`
+def search(nums, target):
+    for i, v in enumerate(nums):
+        if v == target:
+            return i
+    return -1`,
+        decoys:["    return 0"] },
+      { tier:"optimal", name:"Find the sorted half", time:"O(log n)", space:"O(1)", r:1,
+        idea:"At any mid, at least one half is sorted. Check whether target lies inside that sorted half's range: if so search there, otherwise search the other half.",
+        code:`
+def search(nums, target):
+    lo, hi = 0, len(nums) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if nums[mid] == target:
+            return mid
+        if nums[lo] <= nums[mid]:
+            if nums[lo] <= target < nums[mid]:
+                hi = mid - 1
+            else:
+                lo = mid + 1
+        else:
+            if nums[mid] < target <= nums[hi]:
+                lo = mid + 1
+            else:
+                hi = mid - 1
+    return -1`,
+        decoys:["        if nums[lo] < target < nums[mid]:"] }
+    ]},
+  { id:"median-two-arrays", num:4, title:"Median of Two Sorted Arrays", diff:"Hard",
+    prompt:"Given two sorted arrays a and b, return the median of all their elements combined.",
+    example:"a = [1, 3], b = [2]\n→ 2.0",
+    approaches:[
+      { tier:"brute", name:"Merge and sort", time:"O((m+n) log(m+n))", space:"O(m+n)", r:3,
+        idea:"Combine both arrays, sort, and read the middle. Easy to write, but it ignores that both inputs are already sorted.",
+        code:`
+def findMedianSortedArrays(a, b):
+    merged = sorted(a + b)
+    n = len(merged)
+    if n % 2:
+        return merged[n // 2]
+    return (merged[n // 2 - 1] + merged[n // 2]) / 2`,
+        decoys:["    return merged[n // 2] / 2"] },
+      { tier:"optimal", name:"Binary search the partition", time:"O(log min(m,n))", space:"O(1)", r:1,
+        idea:"Cut a at i and b at j so the left side holds half the elements. The cut is right when every left value ≤ every right value. Binary search i over the shorter array; infinities stand in for empty sides.",
+        code:`
+def findMedianSortedArrays(a, b):
+    if len(a) > len(b):
+        a, b = b, a
+    m, n = len(a), len(b)
+    lo, hi = 0, m
+    while lo <= hi:
+        i = (lo + hi) // 2
+        j = (m + n + 1) // 2 - i
+~a        a_left = a[i - 1] if i > 0 else float("-inf")
+~a        a_right = a[i] if i < m else float("inf")
+~a        b_left = b[j - 1] if j > 0 else float("-inf")
+~a        b_right = b[j] if j < n else float("inf")
+        if a_left <= b_right and b_left <= a_right:
+            if (m + n) % 2:
+                return max(a_left, b_left)
+            return (max(a_left, b_left) + min(a_right, b_right)) / 2
+        elif a_left > b_right:
+            hi = i - 1
+        else:
+            lo = i + 1`,
+        decoys:["            lo = i - 1","    lo, hi = 0, n"] }
+    ]}
+]},
+{ id:"dp", name:"Dynamic Programming", problems:[
+  { id:"climbing-stairs", num:70, title:"Climbing Stairs", diff:"Easy",
+    prompt:"You can climb 1 or 2 steps at a time. How many distinct ways are there to reach step n?",
+    example:"n = 3\n→ 3   # 1+1+1, 1+2, 2+1",
+    approaches:[
+      { tier:"brute", name:"Plain recursion", time:"O(2ⁿ)", space:"O(n)", r:6,
+        idea:"Ways(n) = ways(n−1) + ways(n−2). Without caching, the same subproblems are recomputed again and again, so the call tree doubles at every level.",
+        code:`
+def climbStairs(n):
+    if n <= 2:
+        return n
+    return climbStairs(n - 1) + climbStairs(n - 2)`,
+        decoys:["    return climbStairs(n - 1) * climbStairs(n - 2)"] },
+      { tier:"better", name:"Memoised recursion", time:"O(n)", space:"O(n)", r:2.3,
+        idea:"Same recursion, but @cache stores each answer the first time it's computed. Each n is solved once.",
+        code:`
+@cache
+def climbStairs(n):
+    if n <= 2:
+        return n
+    return climbStairs(n - 1) + climbStairs(n - 2)`,
+        decoys:["    if n == 0:"] },
+      { tier:"optimal", name:"Two rolling variables", time:"O(n)", space:"O(1)", r:2,
+        idea:"Each step only depends on the previous two, so build bottom-up while keeping just those two values.",
+        code:`
+def climbStairs(n):
+    a, b = 1, 1
+    for _ in range(n - 1):
+        a, b = b, a + b
+    return b`,
+        decoys:["        a = b","    return a"] }
+    ]},
+  { id:"coin-change", num:322, title:"Coin Change", diff:"Medium",
+    prompt:"Given coin denominations and an amount, return the fewest coins that make up the amount, or -1 if it can't be made. You have unlimited coins of each type.",
+    example:"coins = [1, 2, 5], amount = 11\n→ 3   # 5 + 5 + 1",
+    approaches:[
+      { tier:"brute", name:"Try every coin recursively", time:"O(kᵃ)", space:"O(a)", r:6,
+        idea:"The answer for rem is 1 + the best answer for rem − c over all coins c. Without caching, the branching is exponential in the amount.",
+        code:`
+def coinChange(coins, amount):
+    def go(rem):
+~a        if rem == 0:
+~a            return 0
+~a        if rem < 0:
+~a            return float("inf")
+        return min((go(rem - c) + 1 for c in coins), default=float("inf"))
+    res = go(amount)
+    return res if res != float("inf") else -1`,
+        decoys:["            return -1"] },
+      { tier:"optimal", name:"Bottom-up table", time:"O(a · k)", space:"O(a)", r:3.5,
+        idea:"dp[x] is the fewest coins for amount x. Fill it from 1 up to the amount: for each coin that fits, dp[x] can be dp[x − coin] + 1.",
+        code:`
+def coinChange(coins, amount):
+    dp = [0] + [float("inf")] * amount
+    for a in range(1, amount + 1):
+        for c in coins:
+            if c <= a:
+                dp[a] = min(dp[a], dp[a - c] + 1)
+    return dp[amount] if dp[amount] != float("inf") else -1`,
+        decoys:["                dp[a] = min(dp[a], dp[a - c])","    dp = [0] * (amount + 1)"] }
+    ]},
+  { id:"lis", num:300, title:"Longest Increasing Subsequence", diff:"Medium",
+    prompt:"Return the length of the longest strictly increasing subsequence of nums.",
+    example:"nums = [10, 9, 2, 5, 3, 7, 101, 18]\n→ 4   # 2, 3, 7, 101",
+    approaches:[
+      { tier:"better", name:"DP over every earlier index", time:"O(n²)", space:"O(n)", r:4,
+        idea:"dp[i] is the longest increasing subsequence ending at i. It's 1 + the best dp[j] for any earlier j with a smaller value.",
+        code:`
+def lengthOfLIS(nums):
+    dp = [1] * len(nums)
+    for i in range(len(nums)):
+        for j in range(i):
+            if nums[j] < nums[i]:
+                dp[i] = max(dp[i], dp[j] + 1)
+    return max(dp, default=0)`,
+        decoys:["    return dp[-1]"] },
+      { tier:"optimal", name:"Patience sorting + bisect", time:"O(n log n)", space:"O(n)", r:3,
+        idea:"tails[k] holds the smallest possible tail of an increasing subsequence of length k+1. Each number either extends the longest one or replaces the first tail that's ≥ it, found by binary search.",
+        code:`
+def lengthOfLIS(nums):
+    tails = []
+    for x in nums:
+        i = bisect_left(tails, x)
+        if i == len(tails):
+            tails.append(x)
+        else:
+            tails[i] = x
+    return len(tails)`,
+        decoys:["            tails.insert(i, x)","    return max(tails)"] }
+    ]},
+  { id:"edit-distance", num:72, title:"Edit Distance", diff:"Hard",
+    prompt:"Return the minimum number of single-character inserts, deletes and replacements needed to turn word a into word b.",
+    example:'a = "horse", b = "ros"\n→ 3',
+    approaches:[
+      { tier:"brute", name:"Plain recursion", time:"O(3^(m+n))", space:"O(m+n)", r:6,
+        idea:"Compare a[i] and b[j]. If they match, move both. Otherwise take 1 + the best of delete, insert or replace. Overlapping subproblems make it exponential.",
+        code:`
+def minDistance(a, b):
+    def go(i, j):
+        if i == len(a):
+            return len(b) - j
+        if j == len(b):
+            return len(a) - i
+        if a[i] == b[j]:
+            return go(i + 1, j + 1)
+        return 1 + min(go(i + 1, j), go(i, j + 1), go(i + 1, j + 1))
+    return go(0, 0)`,
+        decoys:["            return 1 + go(i + 1, j + 1)"] },
+      { tier:"better", name:"Memoised recursion", time:"O(m · n)", space:"O(m · n)", r:4,
+        idea:"Identical recursion with @cache, so each (i, j) pair is solved once.",
+        code:`
+def minDistance(a, b):
+    @cache
+    def go(i, j):
+        if i == len(a):
+            return len(b) - j
+        if j == len(b):
+            return len(a) - i
+        if a[i] == b[j]:
+            return go(i + 1, j + 1)
+        return 1 + min(go(i + 1, j), go(i, j + 1), go(i + 1, j + 1))
+    return go(0, 0)`,
+        decoys:["    return go(1, 1)"] },
+      { tier:"optimal", name:"Bottom-up table", time:"O(m · n)", space:"O(m · n)", r:3.9,
+        idea:"dp[i][j] is the distance between the first i letters of a and the first j of b. The first row and column are pure inserts or deletes; every other cell is built from its three neighbours. No recursion depth limits.",
+        code:`
+def minDistance(a, b):
+    m, n = len(a), len(b)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+    for i in range(m + 1):
+        dp[i][0] = i
+    for j in range(n + 1):
+        dp[0][j] = j
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if a[i - 1] == b[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1]
+            else:
+                dp[i][j] = 1 + min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
+    return dp[m][n]`,
+        decoys:["    dp = [[0] * n for _ in range(m)]"] }
+    ]}
+]},
+{ id:"graph", name:"Graphs · BFS & DFS", problems:[
+  { id:"num-islands", num:200, title:"Number of Islands", diff:"Medium",
+    prompt:'Given a grid of "1" (land) and "0" (water), count the islands. An island is land connected horizontally or vertically.',
+    example:'grid = [["1","1","0"],\n        ["1","0","0"],\n        ["0","0","1"]]\n→ 2',
+    approaches:[
+      { tier:"optimal", name:"DFS: sink each island", time:"O(m · n)", space:"O(m · n)", r:4,
+        idea:"Scan the grid. On unvisited land, count an island and recursively sink every connected land cell to 0 so it's never counted again.",
+        code:`
+def numIslands(grid):
+    rows, cols = len(grid), len(grid[0])
+    def sink(r, c):
+        if r < 0 or c < 0 or r >= rows or c >= cols or grid[r][c] != "1":
+            return
+        grid[r][c] = "0"
+        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            sink(r + dr, c + dc)
+    count = 0
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] == "1":
+~a                sink(r, c)
+~a                count += 1
+    return count`,
+        decoys:["        grid[r][c] = \"1\""] },
+      { tier:"optimal", name:"BFS with a queue", time:"O(m · n)", space:"O(min(m, n))", r:4,
+        idea:"Same idea without recursion: flood each island with a queue. Mark cells as water when they're enqueued, not when they're popped, so nothing is added twice.",
+        code:`
+def numIslands(grid):
+    rows, cols = len(grid), len(grid[0])
+    count = 0
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] != "1":
+                continue
+            count += 1
+            grid[r][c] = "0"
+            queue = deque([(r, c)])
+            while queue:
+                y, x = queue.popleft()
+                for ny, nx in ((y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)):
+                    if 0 <= ny < rows and 0 <= nx < cols and grid[ny][nx] == "1":
+~a                        grid[ny][nx] = "0"
+~a                        queue.append((ny, nx))
+    return count`,
+        decoys:["                y, x = queue.pop(0)"] }
+    ]},
+  { id:"course-schedule", num:207, title:"Course Schedule", diff:"Medium",
+    prompt:"There are n courses. prereqs[i] = [a, b] means you must take b before a. Return whether it's possible to finish every course.",
+    example:"n = 2, prereqs = [[1, 0]]          → True\nn = 2, prereqs = [[1, 0], [0, 1]]  → False",
+    approaches:[
+      { tier:"optimal", name:"DFS cycle detection", time:"O(V + E)", space:"O(V + E)", r:2,
+        idea:"It's possible exactly when the prerequisite graph has no cycle. Colour nodes 0 = unvisited, 1 = on the current path, 2 = finished. Reaching a node that's on the current path means a cycle.",
+        code:`
+def canFinish(n, prereqs):
+    graph = defaultdict(list)
+    for a, b in prereqs:
+        graph[b].append(a)
+    state = [0] * n
+    def has_cycle(u):
+        if state[u] == 1:
+            return True
+        if state[u] == 2:
+            return False
+        state[u] = 1
+        if any(has_cycle(v) for v in graph[u]):
+            return True
+        state[u] = 2
+        return False
+    return not any(has_cycle(u) for u in range(n))`,
+        decoys:["        state[u] = 0"] },
+      { tier:"optimal", name:"Kahn's topological sort", time:"O(V + E)", space:"O(V + E)", r:2,
+        idea:"Repeatedly take a course with no remaining prerequisites and remove its outgoing edges. If you manage to take all n courses, there's no cycle.",
+        code:`
+def canFinish(n, prereqs):
+~a    graph = defaultdict(list)
+~a    indegree = [0] * n
+    for a, b in prereqs:
+~b        graph[b].append(a)
+~b        indegree[a] += 1
+~c    queue = deque(u for u in range(n) if indegree[u] == 0)
+~c    taken = 0
+    while queue:
+        u = queue.popleft()
+        taken += 1
+        for v in graph[u]:
+            indegree[v] -= 1
+            if indegree[v] == 0:
+                queue.append(v)
+    return taken == n`,
+        decoys:["        indegree[b] += 1"] }
+    ]}
+]}
+];
+
+/* ---------------- helpers ---------------- */
+const $ = s => document.querySelector(s);
+const DIFF_ORDER = {Easy:0, Medium:1, Hard:2};
+const TIER = {brute:["Brute force","t-brute"], better:["Better","t-better"], optimal:["Optimal","t-optimal"]};
+const SCALE = ["O(1)","O(log n)","O(n)","O(n log n)","O(n²)","O(n³)","O(2ⁿ)"];
+const esc = t => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const store = {
+  get(k,d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+
+const ORDERED = PATTERNS.flatMap(p => [...p.problems].sort((a,b)=>DIFF_ORDER[a.diff]-DIFF_ORDER[b.diff]).map(pr => ({pr, pat:p})));
+const BY_ID = Object.fromEntries(ORDERED.map(x => [x.pr.id, x]));
+const TOTAL = ORDERED.reduce((n,x)=>n+x.pr.approaches.length, 0);
+
+const KW = new Set("def return if elif else for while in not and or is None True False break continue lambda class pass yield with as".split(" "));
+const BI = new Set("len range enumerate sorted set list dict tuple min max sum any all abs float int str ord chr zip defaultdict Counter deque bisect_left cache".split(" "));
+function hl(src){
+  const re = /("[^"]*"|'[^']*')|(#.*)|(\b\d+\b)|([A-Za-z_]\w*)|(\s+)|([^\s"'#\w]+)/g;
+  let out = "", m;
+  while((m = re.exec(src))){
+    const [tok,s,c,n,w] = m;
+    if(s) out += `<span class="str">${esc(s)}</span>`;
+    else if(c) out += `<span class="com">${esc(c)}</span>`;
+    else if(n) out += `<span class="num">${n}</span>`;
+    else if(w){
+      if(KW.has(w)) out += `<span class="kw">${w}</span>`;
+      else if(BI.has(w)) out += `<span class="bi">${w}</span>`;
+      else if(src[m.index + w.length] === "(") out += `<span class="fn">${w}</span>`;
+      else out += w;
+    } else out += esc(tok);
+  }
+  return out;
+}
+
+function parse(ap){
+  const lines = ap.code.replace(/^\n/,"").replace(/\s+$/,"").split("\n").map(raw => {
+    if(raw[0] === "~") return {text: raw.slice(2), group: raw[1]};
+    return {text: raw, group: null};
+  });
+  const k = lines.findIndex(l => l.text.startsWith("def "));
+  return {locked: lines.slice(0, k+1), body: lines.slice(k+1)};
+}
+function shuffle(a){
+  const b = [...a];
+  for(let i=b.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; }
+  return b;
+}
+
+/* ---------------- state ---------------- */
+let solved = new Set(store.get("pd-solved", []));
+const saved = store.get("pd-last", {});
+const S = {
+  pid: BY_ID[saved.pid] ? saved.pid : "two-sum",
+  ai: 0, bank: [], sol: [], locked: [], expected: [],
+  decoys: store.get("pd-decoys", true),
+  checked: null, revealed: false, justSolved: false, hints: 0,
+  hinted: null, filter: "All", focusUid: null, msg: ""
+};
+if(BY_ID[S.pid] && saved.ai < BY_ID[S.pid].pr.approaches.length) S.ai = saved.ai || 0;
+const key = (pid, ai) => pid + ":" + ai;
+
+function load(pid, ai){
+  S.pid = pid; S.ai = ai;
+  const ap = BY_ID[pid].pr.approaches[ai];
+  const {locked, body} = parse(ap);
+  S.locked = locked; S.expected = body;
+  let uid = 0;
+  const pool = body.map(l => ({uid: uid++, text: l.text, decoy: false}));
+  if(S.decoys) (ap.decoys||[]).forEach(t => pool.push({uid: uid++, text: t, decoy: true}));
+  let bank = shuffle(pool);
+  for(let t=0; t<5 && bank.slice(0, body.length).every((x,i)=>x.text===body[i].text); t++) bank = shuffle(pool);
+  S.bank = bank; S.sol = [];
+  S.checked = null; S.revealed = false; S.justSolved = false; S.hints = 0; S.hinted = null;
+  S.msg = "";
+  store.set("pd-last", {pid, ai});
+  render();
+}
+
+/* ---------------- checking ---------------- */
+function segments(){
+  const segs = [];
+  for(const l of S.expected){
+    const last = segs[segs.length-1];
+    if(l.group && last && last.group === l.group) last.items.push(l.text);
+    else segs.push({group: l.group, items: [l.text]});
+  }
+  return segs;
+}
+function evaluate(){
+  const segs = segments(), res = [];
+  let pos = 0;
+  for(const s of segs){
+    const pool = [...s.items];
+    for(let k=0; k<s.items.length; k++){
+      const it = S.sol[pos+k];
+      if(!it) break;
+      if(it.decoy){ res[pos+k] = false; continue; }
+      if(s.group){
+        const idx = pool.indexOf(it.text);
+        if(idx >= 0){ pool.splice(idx,1); res[pos+k] = true; } else res[pos+k] = false;
+      } else res[pos+k] = it.text === s.items[k];
+    }
+    pos += s.items.length;
+  }
+  for(let i=0;i<S.sol.length;i++) if(res[i] === undefined) res[i] = false;
+  const ok = res.filter(Boolean).length;
+  return {res, ok, segs, solved: S.sol.length === S.expected.length && ok === S.expected.length};
+}
+
+function afterChange(){
+  S.checked = null; S.hinted = null; S.msg = "";
+  const ev = evaluate();
+  if(ev.solved && !S.revealed){
+    S.checked = ev; S.justSolved = true;
+    solved.add(key(S.pid, S.ai)); store.set("pd-solved", [...solved]);
+  } else S.justSolved = false;
+  render();
+}
+
+function moveItem(uid, toList, index){
+  let item, from = S.bank.findIndex(x=>x.uid===uid);
+  if(from >= 0) item = S.bank.splice(from,1)[0];
+  else { from = S.sol.findIndex(x=>x.uid===uid); item = S.sol.splice(from,1)[0]; }
+  const arr = toList === "sol" ? S.sol : S.bank;
+  if(index == null || index > arr.length) index = arr.length;
+  arr.splice(index, 0, item);
+}
+function tapMove(uid){
+  if(S.revealed) return;
+  const inBank = S.bank.some(x=>x.uid===uid);
+  moveItem(uid, inBank ? "sol" : "bank", null);
+  S.focusUid = null;
+  afterChange();
+}
+
+function doHint(){
+  if(S.revealed || S.justSolved) return;
+  const ev = evaluate();
+  let i = ev.res.findIndex(r=>!r);
+  if(i < 0) i = S.sol.length;
+  if(i >= S.expected.length){
+    S.sol.splice(i).forEach(x=>S.bank.push(x));
+    S.hints++; afterChange(); S.msg = "Removed lines that don't belong after the end."; render(); return;
+  }
+  const cur = S.sol[i];
+  if(cur && cur.decoy){
+    S.sol.splice(i,1); S.bank.unshift(cur); S.hints++;
+    afterChange(); S.msg = "Line " + (S.locked.length+i+1) + " was a decoy. It's back in the snippets."; render(); return;
+  }
+  let pos = 0, needed = null;
+  for(const s of ev.segs){
+    if(i < pos + s.items.length){
+      if(s.group){
+        const pool = [...s.items];
+        for(let k=pos;k<i;k++){ const idx = pool.indexOf(S.sol[k].text); if(idx>=0) pool.splice(idx,1); }
+        needed = pool[0];
+      } else needed = s.items[i-pos];
+      break;
+    }
+    pos += s.items.length;
+  }
+  let item, from = S.bank.findIndex(x=>!x.decoy && x.text===needed);
+  if(from >= 0) item = S.bank.splice(from,1)[0];
+  else {
+    const j = S.sol.findIndex((x,jj)=>jj>i && !x.decoy && x.text===needed);
+    if(j < 0) return;
+    item = S.sol.splice(j,1)[0];
+  }
+  S.sol.splice(i,0,item); S.hints++;
+  afterChange();
+  if(!S.justSolved){ S.hinted = item.uid; S.msg = "Placed line " + (S.locked.length+i+1) + " for you."; render(); }
+}
+
+function doReveal(){
+  const all = [...S.bank, ...S.sol];
+  const sol = [];
+  for(const l of S.expected){
+    const idx = all.findIndex(x=>!x.decoy && x.text===l.text);
+    sol.push(all.splice(idx,1)[0]);
+  }
+  S.sol = sol; S.bank = all; S.revealed = true; S.justSolved = false;
+  S.checked = evaluate(); S.msg = "";
+  render();
+}
+function doCheck(){
+  if(!S.sol.length){ S.msg = "Add some lines to your solution first. Drag them over, or tap a snippet."; render(); return; }
+  S.checked = evaluate();
+  const {ok} = S.checked, n = S.expected.length;
+  const wrong = S.sol.length - ok;
+  if(!S.checked.solved){
+    S.msg = `<b>${ok} of ${n}</b> lines in the right place.` +
+      (wrong ? ` ${wrong} line${wrong>1?"s are":" is"} out of position or ${wrong>1?"don't":"doesn't"} belong (red).` : "") +
+      (S.sol.length < n ? ` ${n - S.sol.length} still missing.` : "");
+  }
+  render();
+}
+
+/* ---------------- rendering ---------------- */
+function lineHTML(it, cls, inSol){
+  const sp = it.text.match(/^ */)[0].length;
+  const code = it.text.slice(sp);
+  const label = (inSol ? "Remove line: " : "Add line: ") + code;
+  return `<div class="line ${cls}" data-uid="${it.uid}" tabindex="0" role="button" aria-label="${esc(label).replace(/"/g,"&quot;")}"><span class="grip" aria-hidden="true"></span>${'<span class="ind"></span>'.repeat(Math.floor(sp/4))}<code>${hl(code)}</code></div>`;
+}
+
+function renderRail(){
+  const done = solved.size;
+  $("#progress").innerHTML = `<div class="pbar"><span style="width:${(done/TOTAL*100).toFixed(1)}%"></span></div><div class="ptext"><b>${done}</b> of ${TOTAL} approaches solved</div>`;
+  $("#filters").innerHTML = ["All","Easy","Medium","Hard"].map(f=>`<button class="chip ${S.filter===f?"on":""}" data-filter="${f}" aria-pressed="${S.filter===f}">${f}</button>`).join("");
+  $("#nav").innerHTML = PATTERNS.map(p=>{
+    const probs = [...p.problems].sort((a,b)=>DIFF_ORDER[a.diff]-DIFF_ORDER[b.diff]).filter(pr=>S.filter==="All"||pr.diff===S.filter);
+    if(!probs.length) return "";
+    const pd = p.problems.reduce((n,pr)=>n+pr.approaches.filter((_,i)=>solved.has(key(pr.id,i))).length,0);
+    const pt = p.problems.reduce((n,pr)=>n+pr.approaches.length,0);
+    return `<div class="pat"><h3><span>${p.name}</span><span>${pd}/${pt}</span></h3><ul>${probs.map(pr=>`
+      <li><button class="prob ${pr.id===S.pid?"on":""}" data-pid="${pr.id}" ${pr.id===S.pid?'aria-current="true"':""}>
+        <span class="dl d-${pr.diff}" title="${pr.diff}">${pr.diff[0]}</span>
+        <span class="t">${pr.title}</span>
+        <span class="dots" aria-label="${pr.approaches.filter((_,i)=>solved.has(key(pr.id,i))).length} of ${pr.approaches.length} solved">${pr.approaches.map((_,i)=>`<i class="${solved.has(key(pr.id,i))?"y":""}"></i>`).join("")}</span>
+      </button></li>`).join("")}</ul></div>`;
+  }).join("");
+}
+
+function renderProblem(){
+  const {pr, pat} = BY_ID[S.pid];
+  $("#eyebrow").textContent = `${pat.name}  ·  LeetCode #${pr.num}`;
+  $("#title").textContent = pr.title;
+  const d = $("#diff"); d.textContent = pr.diff; d.className = "pill d-" + pr.diff;
+  $("#prompt").textContent = pr.prompt;
+  $("#example").innerHTML = `<b>Example</b>${esc(pr.example)}`;
+  const idx = ORDERED.findIndex(x=>x.pr.id===S.pid);
+  $("#prev").disabled = idx <= 0; $("#next").disabled = idx >= ORDERED.length-1;
+
+  $("#ladder").innerHTML = pr.approaches.map((ap,i)=>{
+    const [tname, tcls] = TIER[ap.tier];
+    const filled = Math.round(ap.r) + 1;
+    const mcls = ap.r <= 2.5 ? "g" : ap.r <= 3.6 ? "a" : "r";
+    return `<button class="ap ${i===S.ai?"on":""}" data-ai="${i}" aria-pressed="${i===S.ai}">
+      <span class="ap-top"><span class="tier ${tcls}">${tname}</span>${solved.has(key(pr.id,i))?'<span class="done">✓ Solved</span>':`<span class="step">${i+1}/${pr.approaches.length}</span>`}</span>
+      <span class="ap-name">${ap.name}</span>
+      <span class="ap-cx"><span>Time <b>${ap.time}</b></span><span>Space <b>${ap.space}</b></span></span>
+      <span class="meter ${mcls}" title="Time complexity on a scale from O(1) to O(2ⁿ)">${SCALE.map((_,k)=>`<i class="${k<filled?"f":""}"></i>`).join("")}</span>
+      <span class="scale">${SCALE.map(s=>`<span>${s.replace("O(","").replace(")","")}</span>`).join("")}</span>
+    </button>`;
+  }).join("");
+}
+
+function renderBench(){
+  const ap = BY_ID[S.pid].pr.approaches[S.ai];
+  const res = S.checked ? S.checked.res : null;
+  $("#decoys").checked = S.decoys;
+
+  $("#bank").innerHTML = S.bank.length
+    ? S.bank.map(it=>lineHTML(it, it.uid===S.hinted?"hinted":"", false)).join("")
+    : `<div class="empty">All snippets placed.</div>`;
+  $("#solbox").style.setProperty("--start", 0);
+  $("#locked").innerHTML = S.locked.map(l=>`<div class="line lock" aria-label="Given line"><span class="grip" aria-hidden="true"></span>${'<span class="ind"></span>'.repeat(Math.floor(l.text.match(/^ */)[0].length/4))}<code>${hl(l.text.trim())}</code></div>`).join("");
+  $("#sol").innerHTML = S.sol.length
+    ? S.sol.map((it,i)=>{
+        let cls = res ? (res[i] ? "ok" : "bad") : "";
+        if(it.uid===S.hinted) cls += " hinted flash";
+        return lineHTML(it, cls, true);
+      }).join("")
+    : `<div class="empty">Drag snippets here in order, or tap a snippet to add it to the end.</div>`;
+
+  const ndec = S.bank.filter(x=>x.decoy).length + S.sol.filter(x=>x.decoy).length;
+  $("#bankCount").textContent = `${S.bank.length} left${ndec ? " · " + ndec + " decoy" + (ndec>1?"s":"") : ""}`;
+  $("#solCount").textContent = `${S.sol.length} / ${S.expected.length} lines`;
+
+  const imp = [];
+  const code = ap.code;
+  const coll = ["defaultdict","Counter","deque"].filter(n=>new RegExp("\\b"+n+"\\b").test(code));
+  if(coll.length) imp.push(`from collections import ${coll.join(", ")}`);
+  if(/\bbisect_left\b/.test(code)) imp.push("from bisect import bisect_left");
+  if(/@cache\b/.test(code)) imp.push("from functools import cache");
+  $("#imports").textContent = imp.length ? "Assumes: " + imp.join("; ") : "";
+
+  const done = S.justSolved || S.revealed;
+  $("#check").disabled = done; $("#hint").disabled = done; $("#reveal").disabled = S.revealed;
+
+  const m = $("#msg");
+  m.innerHTML = S.msg || (S.revealed ? "" : S.justSolved ? "" : "Drag lines with the mouse or the dotted handle. Tap a line to move it between panels. In your solution, Alt + ↑/↓ reorders the focused line.");
+  m.className = "msg" + (S.checked && !S.checked.solved && S.msg ? " bad" : "");
+
+  renderExplain(ap);
+
+  if(S.focusUid != null){
+    const el = document.querySelector(`.line[data-uid="${S.focusUid}"]`);
+    if(el) el.focus();
+    S.focusUid = null;
+  }
+}
+
+function renderExplain(ap){
+  const {pr} = BY_ID[S.pid];
+  const box = $("#explain");
+  if(S.justSolved || S.revealed){
+    let next = "";
+    if(S.ai < pr.approaches.length-1){
+      const n = pr.approaches[S.ai+1];
+      next = `<button class="btn primary" data-go="ap">Next approach: ${n.name} →</button>`;
+    } else {
+      const idx = ORDERED.findIndex(x=>x.pr.id===S.pid);
+      if(idx < ORDERED.length-1) next = `<button class="btn primary" data-go="prob">Next problem: ${ORDERED[idx+1].pr.title} →</button>`;
+    }
+    const again = `<button class="btn" data-go="again">Try it again</button>`;
+    const label = S.revealed ? "Solution shown" : "Solved";
+    const extra = S.revealed ? "Reset to build it yourself; shown solutions don't count toward progress." : (S.hints ? `Solved with ${S.hints} hint${S.hints>1?"s":""}.` : "Solved without hints.");
+    box.innerHTML = `<div class="win ${S.revealed?"shown":""}">
+      <div class="win-h"><span class="badge">${label}</span><h3>${ap.name}</h3><span class="cx">Time ${ap.time} · Space ${ap.space}</span></div>
+      <p>${ap.idea}</p>
+      <p style="color:var(--muted);font-size:13.5px">${extra}</p>
+      <div class="win-actions">${next}${again}</div></div>`;
+  } else {
+    box.innerHTML = `<details class="idea"><summary>Stuck? Read the key idea for “${ap.name}”</summary><p>${ap.idea}</p></details>`;
+  }
+}
+
+function render(){ renderRail(); renderProblem(); renderBench(); }
+
+/* ---------------- drag and drop (pointer events: mouse, pen, touch) ---------------- */
+let drag = null;
+document.addEventListener("pointerdown", e=>{
+  const el = e.target.closest(".droplist .line:not(.lock)");
+  if(!el || e.button > 0 || S.revealed) return;
+  if(e.pointerType === "touch" && !e.target.closest(".grip")) {
+    drag = {el, uid:+el.dataset.uid, x:e.clientX, y:e.clientY, moved:false, id:e.pointerId, tapOnly:true};
+    return;
+  }
+  drag = {el, uid:+el.dataset.uid, x:e.clientX, y:e.clientY, moved:false, id:e.pointerId};
+  if(e.pointerType !== "mouse") e.preventDefault();
+});
+document.addEventListener("pointermove", e=>{
+  if(!drag || e.pointerId !== drag.id) return;
+  if(!drag.moved){
+    if(Math.hypot(e.clientX-drag.x, e.clientY-drag.y) < 6) return;
+    if(drag.tapOnly){ drag = null; return; }
+    startDrag(e);
+  }
+  moveDrag(e);
+});
+document.addEventListener("pointerup", e=>{
+  if(!drag || e.pointerId !== drag.id) return;
+  const d = drag; drag = null;
+  if(d.moved) endDrag(d); else tapMove(d.uid);
+});
+document.addEventListener("pointercancel", ()=>{ if(drag && drag.moved) cancelDrag(drag); drag = null; });
+
+function startDrag(e){
+  drag.moved = true;
+  const r = drag.el.getBoundingClientRect();
+  drag.dx = e.clientX - r.left; drag.dy = e.clientY - r.top;
+  const g = drag.el.cloneNode(true);
+  g.classList.add("ghost"); g.classList.remove("ok","bad","hinted","flash");
+  g.style.width = r.width + "px";
+  document.body.appendChild(g);
+  drag.ghost = g;
+  const ph = document.createElement("div");
+  ph.className = "ph"; ph.style.height = r.height + "px";
+  drag.el.parentNode.insertBefore(ph, drag.el);
+  drag.ph = ph;
+  drag.el.hidden = true;
+  document.body.classList.add("dragging");
+}
+function listUnder(x, y){
+  const el = document.elementFromPoint(x, y);
+  if(!el) return null;
+  if(el.closest("#solbox")) return $("#sol");
+  if(el.closest("#bank")) return $("#bank");
+  return null;
+}
+function moveDrag(e){
+  drag.ghost.style.left = (e.clientX - drag.dx) + "px";
+  drag.ghost.style.top = (e.clientY - drag.dy) + "px";
+  const list = listUnder(e.clientX, e.clientY);
+  if(list){
+    const kids = [...list.querySelectorAll(":scope > .line:not([hidden])")];
+    const before = kids.find(k=>{ const r = k.getBoundingClientRect(); return e.clientY < r.top + r.height/2; });
+    const emp = list.querySelector(":scope > .empty"); if(emp) emp.hidden = true;
+    if(before) list.insertBefore(drag.ph, before); else list.appendChild(drag.ph);
+  }
+  if(e.clientY < 60) window.scrollBy(0, -14);
+  else if(e.clientY > window.innerHeight - 60) window.scrollBy(0, 14);
+}
+function endDrag(d){
+  const list = d.ph.parentNode;
+  let index = 0;
+  for(const n of list.children){ if(n === d.ph) break; if(n.classList.contains("line") && !n.hidden) index++; }
+  const to = list.dataset.list;
+  cleanup(d);
+  moveItem(d.uid, to, index);
+  afterChange();
+}
+function cancelDrag(d){ cleanup(d); render(); }
+function cleanup(d){
+  d.ghost && d.ghost.remove(); d.ph && d.ph.remove();
+  d.el.hidden = false;
+  document.body.classList.remove("dragging");
+}
+
+/* keyboard */
+document.addEventListener("keydown", e=>{
+  const el = e.target.closest && e.target.closest(".droplist .line:not(.lock)");
+  if(!el || S.revealed) return;
+  const uid = +el.dataset.uid;
+  if(e.key === "Enter" || e.key === " "){ e.preventDefault(); tapMove(uid); return; }
+  if(e.altKey && (e.key === "ArrowUp" || e.key === "ArrowDown")){
+    const i = S.sol.findIndex(x=>x.uid===uid);
+    if(i < 0) return;
+    e.preventDefault();
+    const j = e.key === "ArrowUp" ? i-1 : i+1;
+    if(j < 0 || j >= S.sol.length) return;
+    [S.sol[i], S.sol[j]] = [S.sol[j], S.sol[i]];
+    afterChange(); S.focusUid = uid; renderBench();
+  }
+});
+
+/* ---------------- controls ---------------- */
+function closeRail(){ $("#rail").classList.remove("open"); $("#scrim").classList.remove("open"); }
+document.addEventListener("click", e=>{
+  const p = e.target.closest(".prob");
+  if(p){ load(p.dataset.pid, 0); closeRail(); window.scrollTo({top:0}); return; }
+  const f = e.target.closest(".chip");
+  if(f){ S.filter = f.dataset.filter; renderRail(); return; }
+  const a = e.target.closest(".ap");
+  if(a){ load(S.pid, +a.dataset.ai); return; }
+  const g = e.target.closest("[data-go]");
+  if(g){
+    const go = g.dataset.go;
+    if(go === "ap") load(S.pid, S.ai+1);
+    else if(go === "again") load(S.pid, S.ai);
+    else { const idx = ORDERED.findIndex(x=>x.pr.id===S.pid); load(ORDERED[idx+1].pr.id, 0); window.scrollTo({top:0}); }
+  }
+});
+$("#check").onclick = doCheck;
+$("#hint").onclick = doHint;
+$("#reveal").onclick = doReveal;
+$("#reset").onclick = ()=>load(S.pid, S.ai);
+$("#decoys").onchange = e=>{ S.decoys = e.target.checked; store.set("pd-decoys", S.decoys); load(S.pid, S.ai); };
+$("#prev").onclick = ()=>{ const i = ORDERED.findIndex(x=>x.pr.id===S.pid); if(i>0) load(ORDERED[i-1].pr.id, 0); };
+$("#next").onclick = ()=>{ const i = ORDERED.findIndex(x=>x.pr.id===S.pid); if(i<ORDERED.length-1) load(ORDERED[i+1].pr.id, 0); };
+$("#menu").onclick = ()=>{ $("#rail").classList.add("open"); $("#scrim").classList.add("open"); };
+$("#scrim").onclick = closeRail;
+let clearArmed = false;
+$("#clear").onclick = ()=>{
+  const b = $("#clear");
+  if(!clearArmed){ clearArmed = true; b.textContent = "Click again to clear all progress"; setTimeout(()=>{ clearArmed=false; b.textContent="Clear my progress"; }, 3500); return; }
+  solved = new Set(); store.set("pd-solved", []); clearArmed = false; b.textContent = "Clear my progress"; render();
+};
+
+load(S.pid, S.ai);
+</script>
+
+</body>
+</html>
