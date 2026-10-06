@@ -164,6 +164,31 @@ body.dragging,body.dragging *{cursor:grabbing!important}
 .win-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 
 
+
+/* Complexity explainer */
+.cxbox{margin-top:12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cx-item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.cx-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.cx-k{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cx-v{font-family:var(--f-mono);font-weight:600;font-size:15px}
+.cx-scale{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cx-item p{margin:0;font-size:14px;line-height:1.5}
+.cx-item p.cx-rule{font-size:13px;color:var(--muted);border-top:1px dashed var(--line);padding-top:6px;margin-top:auto}
+.cx-head{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.cx-head b{color:var(--ink)}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent-ink);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
+.primer{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.primer summary{cursor:pointer;font-weight:600}
+.primer-body{display:flex;flex-direction:column;gap:12px;margin-top:10px}
+.primer-body p{margin:0;max-width:75ch}
+.primer code,.ptable code{font-family:var(--f-mono);font-size:12.5px}
+.ptable-wrap{overflow-x:auto}
+.ptable{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
+.ptable th{text-align:left;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:6px 10px;border-bottom:1px solid var(--line-strong)}
+.ptable td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.ptable .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pnote{font-size:13px;color:var(--muted)}
+@media (max-width:760px){ .cxbox{grid-template-columns:minmax(0,1fr)} }
 /* Search */
 .search{display:block;margin:16px 8px 0}
 .search input{width:100%;font:inherit;font-size:14px;padding:8px 11px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink)}
@@ -253,6 +278,28 @@ body.dragging,body.dragging *{cursor:grabbing!important}
     <section>
       <div class="sec-h"><h2>Approach ladder</h2><small>Slowest on the left, most optimal on the right. Bars show time complexity.</small></div>
       <div class="ladder" id="ladder"></div>
+      <div class="cxbox" id="cxbox" aria-live="polite"></div>
+      <details class="primer" id="primer">
+        <summary>New to Big-O? Read the 2-minute guide</summary>
+        <div class="primer-body">
+          <p><b>Big-O describes how the work grows as the input grows.</b> It ignores small details like how fast your computer is, and asks: if the input gets 10× bigger, how much more work is there? <i>n</i> is the size of the input, such as the length of the list.</p>
+          <div class="ptable-wrap"><table class="ptable">
+            <thead><tr><th>Time</th><th>In plain English</th><th>Typical code</th><th class="num">Steps when n = 1,000</th></tr></thead>
+            <tbody>
+              <tr><td><code>O(1)</code></td><td>Same work no matter how big the input is</td><td>Look up a key in a dict; read <code>nums[0]</code></td><td class="num">1</td></tr>
+              <tr><td><code>O(log n)</code></td><td>Cut the problem in half each step</td><td>Binary search</td><td class="num">~10</td></tr>
+              <tr><td><code>O(n)</code></td><td>Look at everything once</td><td>One <code>for</code> loop</td><td class="num">1,000</td></tr>
+              <tr><td><code>O(n log n)</code></td><td>Sorting</td><td><code>sorted()</code>, <code>.sort()</code></td><td class="num">~10,000</td></tr>
+              <tr><td><code>O(n²)</code></td><td>Compare everything with everything</td><td>A loop inside a loop</td><td class="num">1,000,000</td></tr>
+              <tr><td><code>O(n³)</code></td><td>Three loops nested</td><td>Every triple</td><td class="num">1,000,000,000</td></tr>
+              <tr><td><code>O(2ⁿ)</code></td><td>Doubles with every extra item</td><td>Recursion that branches twice without memory</td><td class="num">more than atoms in the universe</td></tr>
+            </tbody>
+          </table></div>
+          <p><b>Space is the extra memory the algorithm needs</b>, beyond the input it was given. A few variables is <code>O(1)</code>. A set or dict that remembers every item you've seen is <code>O(n)</code>. The answer you return usually isn't counted. Recursion uses memory too: every call that hasn't finished yet waits on the call stack.</p>
+          <p><b>The usual trade-off: brute force is slow but light on memory.</b> Checking every pair with two loops needs only the two loop counters, so it's <code>O(1)</code> space, but <code>O(n²)</code> time. Faster approaches often <i>spend</i> memory to <i>save</i> time: Two Sum's hash map remembers every number (<code>O(n)</code> space) so it never has to look back (<code>O(n)</code> time). The best answers find a trick that's fast <i>and</i> small, like two pointers.</p>
+          <p class="pnote">Other letters: <i>k</i>, <i>m</i> are other sizes (window length, second list). <i>h</i> is a tree's height, <i>w</i> its widest level. <i>V</i> and <i>E</i> are a graph's nodes and edges. <b>Amortised</b> means "averaged over many calls": an occasional slow step is paid for by many fast ones.</p>
+        </div>
+      </details>
     </section>
 
     <section>
@@ -3818,7 +3865,7 @@ def fib(n):
     prompt:"Return the first numRows rows of Pascal's triangle. Each value is the sum of the two values above it.",
     example:"numRows = 4\n→ [[1], [1,1], [1,2,1], [1,3,3,1]]",
     approaches:[
-      { tier:"better", name:"Binomial formula", time:"O(n²)", space:"O(n²)", r:4.2,
+      { tier:"better", name:"Binomial formula", time:"O(n³)", space:"O(n²)", r:5,
         idea:"Entry c of row r is 'r choose c'. Compute each one directly.",
         code:`
 def generate(numRows):
@@ -3866,6 +3913,620 @@ def countBits(n):
         decoys:[["        res[i] = res[i - 1] + 1","Adding one doesn't always add a bit: 3 → 4 goes from two 1s to one."]] }
     ]}
 ]);
+
+/* Plain-English complexity explanations: CX[problemId][approachIndex] = [why time, why space] */
+const CX = {
+/* ---------- Warm-ups ---------- */
+"reverse-string": [
+  ["Slicing visits every character once to build the reversed copy, then writes each one back. Twice as many characters means twice the work.",
+   "s[::-1] builds a whole second list the same size as the input before copying it back, so memory grows with n."],
+  ["Each swap fixes two characters, so there are about n ÷ 2 swaps. That's still proportional to n.",
+   "Only two index variables, l and r. A list of a million characters still needs just those two numbers."]],
+"fizz-buzz": [
+  ["One trip through the loop per number from 1 to n, and each trip does a fixed number of checks.",
+   "Apart from the answer list you must return anyway, it only stores the loop counter."],
+  ["Same single loop: each number gets at most two divisibility checks.",
+   "Just the short word being built for the current number. The output list doesn't count as extra working space."]],
+"palindrome-number": [
+  ["d is the number of digits. Building the string and reversing it touches each digit once. A 10-digit number takes about 10 steps.",
+   "str(x) and s[::-1] both create strings with d characters, so memory grows with the number of digits."],
+  ["Each loop peels one digit off x, and it stops halfway, so it takes about d ÷ 2 steps.",
+   "Only two numbers, x and half. No strings or lists are created."]],
+"count-vowels": [
+  ["Every character is looked at once, and the five comparisons per character are a fixed amount of work.",
+   "One counter. (s.lower() makes a copy, but the vowel check itself needs nothing extra.)"],
+  ["Still one look per character. Checking a set is instant, but it doesn't change how many characters you visit.",
+   "The vowel set always holds exactly 5 letters, no matter how long the text is."]],
+"second-largest": [
+  ["Sorting is the expensive part: about n × log n comparisons. For 1,000 numbers that's roughly 10,000 steps.",
+   "set(nums) and sorted(...) each build a new collection that can be as big as the input."],
+  ["One pass. Each number is compared with the current top two, a fixed amount of work per number.",
+   "Just two variables, first and second, however long the list is."]],
+"missing-number": [
+  ["Sorting costs about n log n. The scan afterwards is only n, so the sort dominates.",
+   "Python's sort works in place on nums. Nothing big is copied (strictly, sorting uses a small amount of scratch space)."],
+  ["Building the set is one pass, and each 'in' check is instant, so about 2n steps in total.",
+   "The set stores a copy of every number: n extra slots of memory."],
+  ["sum(nums) adds each number once. The formula itself is a single calculation.",
+   "Three numbers: n, expected and the running sum. Nothing grows with the input."]],
+"single-number": [
+  ["Counter makes one pass to count, and the loop over the counts is at most another pass.",
+   "The counter stores an entry for every distinct value, which is about n ÷ 2 entries here."],
+  ["One XOR per number: a single pass.",
+   "Only result. Every number is folded into that single value as you go."]],
+"majority-element": [
+  ["Counting is one pass; picking the max is one pass over the distinct values.",
+   "One counter entry per distinct value; in the worst case that's close to n entries."],
+  ["One pass; each number either adds or removes a vote.",
+   "Only candidate and votes: two variables, however long the list is."]],
+"plus-one": [
+  ["Joining, converting and splitting each touch every digit once.",
+   "The joined string, the big integer and the new list are all about n digits long."],
+  ["In the worst case (all 9s) the loop visits every digit once; usually it stops much earlier.",
+   "It changes digits in place. Only the all-9s case makes a new list one digit longer."]],
+"longest-common-prefix": [
+  ["S is the total number of characters across all words. Each word's startswith check and trimming together never do more work than the letters involved.",
+   "Only the prefix string, which can never be longer than the first word. That's treated as constant extra memory here."],
+  ["min and max scan the words once (comparing letters as needed), then one walk along the shortest common part.",
+   "Just two references and a counter. The words themselves aren't copied."]],
+"roman-to-int": [
+  ["Six replace passes over the string, then one pass to add up. Six is a fixed number, so it's still proportional to n.",
+   "replace builds new strings, and the rewritten form can be up to a few times longer than the original."],
+  ["One look at each symbol, plus a peek at its neighbour.",
+   "The value table always has 7 entries, and there's one running total."]],
+
+/* ---------- Hash Map & Set ---------- */
+"two-sum": [
+  ["For each number, the inner loop checks every number after it: about n × n ÷ 2 pairs. 1,000 numbers is roughly 500,000 checks; 10× more numbers is 100× more work.",
+   "It only uses the loop counters i and j. No copies, no extra lists. Brute force is slow, but it's light on memory."],
+  ["Sorting takes about n log n steps (10,000 for 1,000 numbers). The pointer walk afterwards is only n.",
+   "pairs is a sorted copy of every number together with its index: n extra entries."],
+  ["One pass. Each dictionary lookup takes the same tiny amount of time whether it holds 10 items or 10 million.",
+   "This is the trade-off: to go fast it remembers every number it has passed, so the dictionary can grow to n entries."]],
+"contains-duplicate": [
+  ["Every element is compared with every later element: about n² ÷ 2 comparisons.",
+   "No extra storage, just two loop counters."],
+  ["Sorting costs n log n; one pass over neighbours afterwards costs n.",
+   "Sorts nums in place, so no new list is created (strictly, the sort uses a little scratch space)."],
+  ["One pass, with an instant set lookup for each value.",
+   "The set may end up holding every value: n extra slots. Speed is bought with memory."]],
+"valid-anagram": [
+  ["Sorting each string costs about n log n.",
+   "sorted() returns new lists of n letters each."],
+  ["One pass over both strings, plus a final pass over the counts.",
+   "The dictionary has at most one entry per letter of the alphabet (26), no matter how long the words are."]],
+"first-unique-char": [
+  ["s.count(ch) rescans the whole string, and it runs for every character: n scans of n characters, so n².",
+   "Nothing is stored apart from the loop variables."],
+  ["Counter makes one pass to count, then one pass to find the answer: 2n steps.",
+   "The counter has one entry per distinct character, at most 26 for lowercase letters."]],
+"group-anagrams": [
+  ["Each word (n of them) is compared with every other word, and each comparison sorts letters (k log k for a word of length k).",
+   "The used flags and the groups together hold one entry per word."],
+  ["Each of the n words is sorted once: k log k each.",
+   "The dictionary stores every word plus a sorted key of length k for each group."],
+  ["Each word's letters are counted once: k steps per word, n words. No sorting at all.",
+   "Every word is stored once, plus a 26-number key per group."]],
+"longest-consecutive": [
+  ["From each number, the while loop can step up to n times, and each 'in nums' check scans the list (n more). That's n × n × n in the worst case.",
+   "No copies; just a few counters."],
+  ["Sorting dominates at n log n; the scan afterwards is n.",
+   "Sorts in place, so there are no extra lists."],
+  ["Every number is counted forward only from the start of its run, so each number is visited at most twice overall.",
+   "The set holds a copy of every distinct number."]],
+"ransom-note": [
+  ["For every letter in the note (n), 'in' and remove() each scan the magazine list (m).",
+   "letters is a copy of the magazine, m characters."],
+  ["Counting the magazine is m steps; checking the note is n steps.",
+   "The counter holds at most 26 entries, one per letter, however long the texts are."]],
+"intersection-arrays": [
+  ["For each value of nums1 (n), 'x in nums2' scans the second list (m).",
+   "Only the result list, which isn't counted as working space."],
+  ["One pass to build the set, one pass to check the other list, instant lookups each time.",
+   "The set stores every value of nums1."]],
+"isomorphic-strings": [
+  ["s.index(c) searches from the start of the string, and it runs for every character: n searches of up to n characters.",
+   "Two pattern lists, each as long as the strings."],
+  ["One pass over the paired characters, with instant dictionary lookups.",
+   "Each dictionary has at most one entry per possible character (a fixed alphabet), so it doesn't grow with n."]],
+"happy-number": [
+  ["The sequence drops quickly to small numbers and then either reaches 1 or loops within a short range, so the number of steps grows only with the number of digits.",
+   "The seen set records each number visited, which is small but grows with the length of the sequence."],
+  ["Same short sequence, walked by two pointers.",
+   "Only slow and fast. Floyd's trick replaces the set entirely."]],
+
+/* ---------- Two Pointers ---------- */
+"valid-palindrome": [
+  ["One pass to clean the string, one to reverse it, one to compare: a few passes, still proportional to n.",
+   "cleaned and its reversed copy each hold up to n characters."],
+  ["Each step moves at least one pointer inward, so the pointers meet after at most n steps.",
+   "Just two indexes. Nothing is copied."]],
+"move-zeroes": [
+  ["Building the list, counting zeros and copying back are each one pass.",
+   "non_zero and the joined list are new lists up to n long."],
+  ["fast moves through the list exactly once.",
+   "Swaps happen inside nums itself, with just two indexes."]],
+"remove-duplicates-sorted": [
+  ["Sorting the unique values costs n log n, which wipes out the benefit of the input already being sorted.",
+   "The set and the sorted list are both new collections up to n long."],
+  ["The read index i visits each element once.",
+   "Values are overwritten in place, using just the indexes i and k."]],
+"container-most-water": [
+  ["Every pair of lines is tried: about n² ÷ 2 pairs.",
+   "Only the best area and two loop counters."],
+  ["Each step moves one pointer inward, so after n steps they meet.",
+   "Two pointers and the best area."]],
+"three-sum": [
+  ["Three nested loops try every triplet: about n³ ÷ 6. 1,000 numbers means about 166 million checks.",
+   "The result set can hold many triplets, and that storage grows with the input."],
+  ["For each i (n), the inner loop scans the rest (n): n² steps in total.",
+   "A fresh set of up to n seen values for each i."],
+  ["Sorting is n log n, then for each i the two pointers sweep the rest once: n². The sort is cheap next to that.",
+   "Sorts in place and skips duplicates with pointers, so no set is needed (the answer list isn't counted)."]],
+"trapping-rain-water": [
+  ["For each bar, max() scans everything to its left and everything to its right: n scans of n bars.",
+   "The slices height[:i + 1] and height[i:] are temporary copies, but only the current maxima are kept."],
+  ["Three separate passes (left maxima, right maxima, sum), each n.",
+   "Two extra arrays, left and right, each n long."],
+  ["The two pointers meet after n total steps.",
+   "Just four numbers: two pointers and two running maxima."]],
+"merge-sorted-array": [
+  ["Sorting m + n numbers costs (m + n) log(m + n), even though both halves were already sorted.",
+   "The copy and the sort happen inside nums1."],
+  ["Every slot of nums1 is filled exactly once, from the back.",
+   "Only three indexes. The spare space at the end of nums1 is used as the working area."]],
+"squares-sorted": [
+  ["Squaring is n, and sorting is n log n, which dominates.",
+   "A list of n squares (the answer, plus the sort's own scratch work)."],
+  ["The two pointers together walk the array once.",
+   "Only the result list of n numbers, which you have to return anyway."]],
+"is-subsequence": [
+  ["Each find() starts where the last one stopped, so t is scanned at most once overall, plus a step per character of s.",
+   "A single position number."],
+  ["One pass through t.",
+   "A single index into s."]],
+
+/* ---------- Sliding Window ---------- */
+"best-time-stock": [
+  ["Every buy day is paired with every later sell day: about n² ÷ 2 pairs.",
+   "Just the best profit and two loop counters."],
+  ["One pass, constant work per day.",
+   "Two numbers: the lowest price so far and the best profit."]],
+"max-average-subarray": [
+  ["There are about n windows, and each sum() adds k numbers from scratch.",
+   "Only the best sum (the slice is temporary)."],
+  ["Each step adds one number and removes one. Constant work, n times.",
+   "The running window sum and the best sum."]],
+"contains-duplicate-ii": [
+  ["Each index looks at up to k following elements: n × k checks.",
+   "No extra storage."],
+  ["One pass. Adding to and removing from a set is instant.",
+   "The set never holds more than k values, the size of the window."]],
+"longest-substring": [
+  ["From each start, the inner loop may extend almost to the end: about n² ÷ 2 steps.",
+   "k is the alphabet size. The set holds at most one copy of each character."],
+  ["r moves forward n times and l moves forward at most n times in total, so it's about 2n steps, not n².",
+   "The window set holds at most k distinct characters."],
+  ["Each character is processed once; l jumps instead of crawling.",
+   "One dictionary entry per distinct character, at most k."]],
+"char-replacement": [
+  ["Every start and every end: about n² ÷ 2 windows. max(count.values()) is at most 26 checks, a fixed cost.",
+   "The counter has at most 26 entries."],
+  ["r advances n times and l advances at most n times in total.",
+   "The counter has at most 26 letters, whatever the length of s."]],
+"permutation-in-string": [
+  ["About n windows, and each one is sorted from scratch (m log m for a window of length m).",
+   "The sorted window and target are each m letters."],
+  ["Each slide changes two counts, and comparing two 26-letter counters is a fixed cost, so the total is about n.",
+   "Two counters, each with at most 26 letters."]],
+"min-window": [
+  ["Every start extends right (n²), and each step re-checks all required letters (k).",
+   "The counters only hold letters that appear: at most k distinct characters."],
+  ["r moves across s once and l follows behind once. Building the counter for t costs m.",
+   "The need counter has at most k distinct characters."]],
+"max-consecutive-ones": [
+  ["From each start, the inner loop can run to the end of a long run of 1s: up to n² ÷ 2 steps.",
+   "A couple of counters."],
+  ["One pass, constant work per element.",
+   "Two counters."]],
+"min-diff-k-scores": [
+  ["There are C(n, k) ways to choose k scores, which explodes: choosing 5 from 30 is already 142,506 groups.",
+   "Only the current group of k values exists at a time."],
+  ["Sorting is n log n; the window slide afterwards is just n.",
+   "Sorts in place; just the best value."]],
+
+/* ---------- Prefix Sum ---------- */
+"running-sum": [
+  ["Answer i adds up i + 1 numbers from scratch: 1 + 2 + … + n, which is about n² ÷ 2 additions.",
+   "The output list itself (n numbers), which you have to return anyway."],
+  ["One addition per number.",
+   "Only the output list and a running total."]],
+"pivot-index": [
+  ["For every index, both sums re-add the whole array: n passes of n.",
+   "The slices are temporary; only loop variables are kept."],
+  ["One sum() pass for the total, then one pass with a running left total.",
+   "Two numbers, total and left."]],
+"range-sum-query": [
+  ["Each query re-adds up to n numbers. 1,000 queries on a 1,000-element array is about a million additions.",
+   "Just a reference to the original list."],
+  ["Building the prefix list costs n once; after that every query is one subtraction, however wide the range.",
+   "The prefix list holds n + 1 numbers. Spending memory once makes every query instant."]],
+"product-except-self": [
+  ["For each of the n positions, it multiplies all n numbers.",
+   "One running product, apart from the output."],
+  ["Two passes over the array, forward and backward.",
+   "Only two running products. The output list doesn't count as extra space."]],
+"subarray-sum-k": [
+  ["Every start and every end: about n² ÷ 2 subarrays, each extended with one addition.",
+   "Two counters."],
+  ["One pass, with an instant dictionary lookup per element.",
+   "The dictionary can store up to n different prefix sums."]],
+"highest-altitude": [
+  ["Each altitude re-adds every gain before it: 1 + 2 + … + n additions.",
+   "Only the best value (slices are temporary)."],
+  ["One addition per gain.",
+   "Two numbers: the current altitude and the best."]],
+"left-right-sum-diff": [
+  ["For every index, both sides are summed from scratch: n × n.",
+   "The output list (n numbers)."],
+  ["One sum() to start, then one pass.",
+   "Two running totals, apart from the output."]]
+};
+
+Object.assign(CX, {
+/* ---------- Stack ---------- */
+"valid-parentheses": [
+  ["Each pass of the while loop rebuilds the string but may remove only one layer of brackets, so deeply nested input like ((((…)))) needs about n ÷ 2 passes of n characters.",
+   "replace() creates a new string every time."],
+  ["Each character is pushed or popped once.",
+   "In the worst case (all openers, like '(((('), the stack holds every character."]],
+"backspace-compare": [
+  ["Each string is typed out once.",
+   "Both final strings are stored as stacks, up to n + m characters in total."],
+  ["Each pointer moves left through its string once.",
+   "Only indexes and two skip counters. No rebuilt strings at all."]],
+"min-stack": [
+  ["push, pop and top are instant, but getMin scans every item, so it's n per call.",
+   "The list stores each pushed value once."],
+  ["Every operation reads or writes only the top of the stack.",
+   "Each entry stores two numbers (value and min), still proportional to n. That doubled memory is what makes getMin instant."]],
+"eval-rpn": [
+  ["Each operator triggers a search from the start plus a splice that shifts the rest of the list: up to n work, about n times.",
+   "A working copy of the token list."],
+  ["Each token is pushed or popped a constant number of times.",
+   "The stack can hold up to about n ÷ 2 numbers waiting for operators."]],
+"daily-temperatures": [
+  ["For each day, it may scan almost to the end looking for a warmer one. Steadily falling temperatures are the worst case: about n² ÷ 2 steps.",
+   "Only the answer list."],
+  ["Each index is pushed once and popped at most once, so at most 2n operations in total, even though there's a loop inside a loop.",
+   "The stack can hold up to n indexes (for steadily falling temperatures)."]],
+"largest-rectangle": [
+  ["Every left edge with every right edge: about n² ÷ 2 ranges.",
+   "Two variables: the current minimum and the best area."],
+  ["Each bar is pushed once and popped once.",
+   "The stack can hold every bar if heights keep rising."]],
+"baseball-game": [
+  ["One step per operation, plus a final sum.",
+   "The record stack can hold one score per operation."]],
+"remove-adjacent-dupes": [
+  ["Each pass removes one pair and then restarts; slicing rebuilds the string each time. That's up to n ÷ 2 passes of n.",
+   "Each slice creates a new string."],
+  ["Each letter is pushed once and popped at most once.",
+   "The stack holds the surviving letters, up to n."]],
+"queue-using-stacks": [
+  ["pop(0) shifts every remaining item one place left, so each pop costs n.",
+   "One list of all queued items."],
+  ["An item is moved from inbox to outbox at most once in its life. Spread over all operations, each one averages out to constant time ('amortised').",
+   "Each item lives in exactly one of the two stacks: n in total."]],
+
+/* ---------- Binary Search ---------- */
+"binary-search": [
+  ["It might have to look at every element: a million elements means up to a million checks.",
+   "No extra storage."],
+  ["Each step halves the range: a million elements takes about 20 steps (2²⁰ ≈ 1,000,000). Doubling the input adds just one step.",
+   "Three indexes: lo, hi and mid."]],
+"search-insert": [
+  ["It may walk the entire list.",
+   "No extra storage."],
+  ["The range halves each step, so about log₂ n steps.",
+   "A few indexes."]],
+"sqrt-x": [
+  ["It counts up to the square root: for x = 1,000,000 that's 1,000 steps. Better than counting to x, but it still grows.",
+   "One counter."],
+  ["Binary search over 0..x needs about log₂ x steps: around 31 even for x = 2 billion.",
+   "A few numbers."]],
+"find-min-rotated": [
+  ["Looks at every value once.",
+   "A single running minimum."],
+  ["Halves the range each step.",
+   "A few indexes."]],
+"rotated-search": [
+  ["Looks at every value once in the worst case.",
+   "Nothing extra."],
+  ["Halves the range each step, even though the array is rotated.",
+   "A few indexes."]],
+"koko-bananas": [
+  ["Tries speeds 1, 2, 3 … up to the largest pile (max), and each try adds up all n piles.",
+   "Only the speed counter."],
+  ["Binary search over speeds 1..max takes log₂(max) tries, and each try costs n. With max = 1 billion that's about 30 tries instead of a billion.",
+   "A few numbers."]],
+"median-two-arrays": [
+  ["Combining is m + n steps, and sorting the combined list is (m + n) log(m + n).",
+   "The merged list holds every element of both arrays."],
+  ["Binary search over the shorter array only, halving each time: about log₂ of the smaller length.",
+   "A handful of numbers, however big the arrays are."]],
+"first-bad-version": [
+  ["May call isBadVersion on every version from 1 to n.",
+   "One loop variable."],
+  ["Halves the range each call: about 31 calls even for 2 billion versions.",
+   "lo, hi and mid."]],
+"valid-perfect-square": [
+  ["Counts up to √num: about 1,000 steps for num = 1,000,000.",
+   "One counter."],
+  ["Binary search over 1..num: about log₂ num steps.",
+   "A few numbers."]],
+
+/* ---------- Linked List ---------- */
+"reverse-list": [
+  ["One walk to collect the values and one to build the new list.",
+   "A Python list of every value, plus a whole new set of n nodes."],
+  ["One recursive call per node.",
+   "Each recursive call waits on the call stack until the end is reached, so n calls pile up. Long lists can hit Python's recursion limit."],
+  ["One pass, flipping one pointer per node.",
+   "Only three pointers (prev, head, nxt), regardless of list length."]],
+"middle-of-list": [
+  ["One full pass to count, then half a pass: about 1.5n steps.",
+   "A counter and a pointer."],
+  ["fast covers the list in n ÷ 2 double steps: one pass in total.",
+   "Two pointers."]],
+"linked-list-cycle": [
+  ["Each node is visited once before the walk either ends or repeats.",
+   "The set remembers every node visited: n entries."],
+  ["The fast pointer catches the slow one within a few laps of the cycle, so it's proportional to n.",
+   "Two pointers. No memory of where you've been."]],
+"merge-two-lists": [
+  ["Collecting is m + n, but sorting the values costs (m + n) log(m + n).",
+   "A list of all values, plus brand-new nodes."],
+  ["Each step attaches one node, so m + n steps.",
+   "The existing nodes are re-linked; only a dummy node and a tail pointer are extra."]],
+"remove-nth-from-end": [
+  ["One pass to count, a second partial pass to find the node.",
+   "A counter and a pointer."],
+  ["fast and slow move together through the list once.",
+   "Two pointers and a dummy node."]],
+"merge-k-lists": [
+  ["N is the total number of nodes. Sorting all N values costs N log N.",
+   "Every value is copied into a list, and N new nodes are created."],
+  ["Each of the N nodes goes through the heap once, and each heap operation costs log k because the heap only holds k items.",
+   "The heap holds at most one node per list: k entries."]],
+"remove-list-elements": [
+  ["One pass to collect, one to rebuild.",
+   "A list of kept values plus new nodes."],
+  ["One pass over the list.",
+   "One dummy node and one pointer."]],
+"palindrome-list": [
+  ["One walk to copy the values, then a list comparison.",
+   "Every value is copied into a Python list."],
+  ["Finding the middle, reversing half, and comparing are three passes of at most n.",
+   "Only a few pointers. The reversal reuses the existing nodes."]],
+
+/* ---------- Trees ---------- */
+"max-depth": [
+  ["Every node is visited exactly once.",
+   "h is the tree's height. The call stack holds one frame per level on the current path: about log n for a balanced tree, n for one long chain."],
+  ["Every node goes through the queue once.",
+   "w is the widest level. The queue holds a whole level at once, up to about n ÷ 2 nodes for a full bottom level."]],
+"invert-tree": [
+  ["Each node's children are swapped once.",
+   "Recursion depth equals the height h."],
+  ["Each node is pushed and popped once.",
+   "The stack holds nodes along roughly one path plus their siblings, about h."]],
+"same-tree": [
+  ["Both trees are fully walked once.",
+   "Both serialised lists hold every node (and a None for each gap)."],
+  ["Each pair of nodes is compared at most once, and it stops early at the first difference.",
+   "Only the recursion depth, h."]],
+"validate-bst": [
+  ["One in-order walk plus one pass over the values.",
+   "A list containing every value."],
+  ["Each node is checked once.",
+   "Only the recursion depth, h. No list of values."]],
+"level-order": [
+  ["Each node is visited once.",
+   "The output holds every value; the recursion adds depth h."],
+  ["Each node enters and leaves the queue once.",
+   "The queue holds at most one level, w."]],
+"lca-bst": [
+  ["Without using BST order, it may need to search the whole tree.",
+   "Recursion depth h."],
+  ["It walks one path from the root downward, so the work is the tree height h: about log n for a balanced tree.",
+   "A single pointer, no recursion."]],
+"symmetric-tree": [
+  ["Each node is compared once with its mirror partner.",
+   "Recursion depth h."],
+  ["Each node pair passes through the queue once.",
+   "The queue holds about one level of pairs, w."]],
+"path-sum": [
+  ["Each node is visited at most once.",
+   "Recursion depth h."],
+  ["Each node is pushed and popped once.",
+   "The stack holds about one path's worth of pending siblings, h."]],
+"diameter-tree": [
+  ["height() walks a whole subtree, and it's called again for every node, so nodes near the bottom are measured over and over: up to n² for a long chain.",
+   "Recursion depth h."],
+  ["Each node's height is calculated once and reused straight away by its parent.",
+   "Recursion depth h, plus one shared variable for the best."]],
+
+/* ---------- Heap ---------- */
+"last-stone": [
+  ["Every round re-sorts the stones (n log n), and there are up to n rounds.",
+   "A working copy of the stones."],
+  ["Each of the up-to-n rounds pops and pushes on a heap, which costs log n.",
+   "The heap holds every stone."]],
+"kth-largest": [
+  ["Sorting everything costs n log n, even though you only need one value.",
+   "Sorts in place."],
+  ["n pushes and pops on a heap that never grows past k: log k each. With k = 10 and n = a million, that's much cheaper than sorting.",
+   "The heap holds only k values."]],
+"top-k-frequent": [
+  ["Sorting the distinct values by count costs up to n log n.",
+   "The counter and the sorted list each hold up to n entries."],
+  ["nlargest keeps a heap of size k while scanning: n log k.",
+   "The counter still holds every distinct value."],
+  ["Frequencies can only be 1..n, so values are dropped straight into the right bucket: no sorting at all.",
+   "The buckets list has n + 1 slots, plus the counter."]],
+"k-closest": [
+  ["Sorting all points by distance: n log n.",
+   "Sorts in place."],
+  ["n pushes onto a heap capped at size k: log k each.",
+   "The heap holds k points."]],
+"kth-largest-stream": [
+  ["Every add() re-sorts the whole list. The list keeps growing, so adds get slower over time.",
+   "Every number ever added is kept."],
+  ["Each add() is one push and maybe one pop on a heap of size k, however many numbers have arrived.",
+   "Only k numbers are ever stored."]],
+
+/* ---------- Graphs ---------- */
+"flood-fill": [
+  ["m × n is the number of pixels. Each pixel is recoloured at most once.",
+   "In the worst case (all one colour) the recursion can go m × n calls deep."],
+  ["Each pixel enters the queue at most once.",
+   "The queue can hold a large share of the pixels at once."]],
+"path-exists": [
+  ["V is the number of nodes and E the number of edges. Building the graph touches each edge; the search visits each node and edge once.",
+   "The adjacency list stores every edge (twice), and seen stores every node."],
+  ["Each edge does two find() calls, which are almost constant thanks to path shortcuts. α(V) is a tiny number, under 5 for any real input.",
+   "Only the parent array, one entry per node. Edges aren't stored."]],
+"num-islands": [
+  ["Every cell is looked at by the scan, and each land cell is sunk only once.",
+   "One big island can make the recursion as deep as the number of cells."],
+  ["Each cell is enqueued at most once.",
+   "The queue holds the 'frontier' of the flood, which stays around the grid's shorter side."]],
+"rotting-oranges": [
+  ["Each simulated minute rescans the entire grid (m × n), and there can be up to m × n minutes.",
+   "The list of oranges rotting this minute."],
+  ["Each cell is enqueued at most once, and all the starting rotten oranges spread together.",
+   "The queue can hold a large share of the cells."]],
+"course-schedule": [
+  ["Each course and each prerequisite edge is explored once thanks to the 'done' state.",
+   "The graph stores every edge; recursion can go V deep."],
+  ["Each course is dequeued once and each edge is relaxed once.",
+   "The graph, the indegree list and the queue."]],
+"star-center": [
+  ["Counting touches every edge once.",
+   "One counter entry per node."],
+  ["Looks at only two edges, however big the star is.",
+   "Two numbers."]],
+"town-judge": [
+  ["For each of the n people, it scans the whole trust list (t pairs).",
+   "A set of people who trust someone."],
+  ["One pass over the trust list, then one pass over the people.",
+   "One score per person."]],
+
+/* ---------- Backtracking ---------- */
+"subsets": [
+  ["There are 2ⁿ subsets and each can be up to n long, so just writing the answer is n · 2ⁿ. Every method has this floor.",
+   "The answer itself is n · 2ⁿ, because every subset is kept."],
+  ["2ⁿ masks, each building a subset of up to n items.",
+   "The result list holds every subset."],
+  ["Same 2ⁿ leaves, each copying a path of up to n.",
+   "Apart from the output, only the current path and the recursion depth: n."]],
+"permutations": [
+  ["There are n! orderings (3,628,800 for n = 10), each n long.",
+   "Every partial ordering is kept as it grows."],
+  ["Same n! results, each copied once (n).",
+   "Apart from the output, only path, the used flags and recursion depth: n."]],
+"combination-sum": [
+  ["For each candidate and each target value, every stored combination is copied and extended.",
+   "Every partial combination for every target value is stored at once, which is the memory-hungry part."],
+  ["The search tree branches up to k ways and can be t ÷ m levels deep (m = smallest candidate). Pruning cuts most branches early.",
+   "Only the current path and recursion depth, about t ÷ m."]],
+"n-queens": [
+  ["Checks all n! column orderings, each in n steps. n = 10 is already 36 million steps.",
+   "Only the current ordering."],
+  ["Still exponential, but a branch is abandoned the moment a queen is attacked, so far fewer than n! boards are explored.",
+   "Three sets and recursion depth, each at most n."]],
+"binary-strings": [
+  ["2ⁿ strings of length n must be produced.",
+   "Every string is stored."],
+  ["The same 2ⁿ strings, built one character at a time.",
+   "Apart from the output, only the current path, n long."]],
+"subset-xor-sum": [
+  ["Each number doubles the number of branches: 2ⁿ subsets.",
+   "Recursion depth n."],
+  ["One OR per number, then one shift.",
+   "One running total."]],
+
+/* ---------- Dynamic Programming ---------- */
+"climbing-stairs": [
+  ["Each call makes two more calls, and the same steps are recalculated again and again. The work roughly doubles with each extra step: n = 40 takes over 100 million calls.",
+   "Space isn't the problem here: the call stack only goes n deep at a time, because calls finish before their siblings start."],
+  ["Each step from 1 to n is computed once and then remembered.",
+   "The cache stores one answer per step, and the recursion is n deep."],
+  ["One loop from 1 to n.",
+   "Only the last two answers are kept. That's the full DP journey: exponential → linear with memory → linear with no memory."]],
+"min-cost-stairs": [
+  ["Two recursive branches per stair with no memory: about 2ⁿ calls.",
+   "Recursion depth n."],
+  ["One loop over the stairs.",
+   "Two running totals."]],
+"house-robber": [
+  ["Two choices at every house, with no memory: about 2ⁿ calls.",
+   "Recursion depth n."],
+  ["Each house's answer is computed once.",
+   "The cache holds one answer per house, and the recursion is n deep."],
+  ["One pass over the houses.",
+   "Two running totals, prev and cur."]],
+"max-subarray": [
+  ["Every start with every end: about n² ÷ 2 sums.",
+   "Two running numbers."],
+  ["One pass: each element either extends the current run or starts a new one.",
+   "Two numbers."]],
+"coin-change": [
+  ["a is the amount and k the number of coin types. Each call tries every coin, and amounts are recomputed endlessly, so the work multiplies by about k at every level.",
+   "Recursion depth up to a (using 1-coins)."],
+  ["For each amount from 1 to a, it tries each of the k coins once.",
+   "The table has one slot per amount, a + 1 in total."]],
+"unique-paths": [
+  ["Two calls per cell and no memory, so the same cells are revisited a huge number of times.",
+   "Recursion depth m + n (one move per call)."],
+  ["Each of the m × n cells is updated once.",
+   "Only one row of n numbers is kept, not the whole grid."]],
+"jump-game": [
+  ["For every index, it may check every reachable index after it: up to n² ÷ 2.",
+   "One good/bad flag per index."],
+  ["One pass, updating a single reach value.",
+   "One number."]],
+"lis": [
+  ["For each element, it looks at every earlier element: about n² ÷ 2 comparisons.",
+   "One dp value per element."],
+  ["n binary searches over tails, each log n.",
+   "The tails list can grow to n in a fully increasing input."]],
+"edit-distance": [
+  ["Up to three recursive calls per mismatch with no memory: the work explodes as the words grow.",
+   "Recursion depth m + n."],
+  ["Each (i, j) pair is solved once: m × n subproblems.",
+   "The cache stores all m × n answers, plus the recursion depth."],
+  ["Fills an (m + 1) × (n + 1) table one cell at a time.",
+   "The full table is kept. (Keeping just two rows would cut this to O(n).)"]],
+"fibonacci": [
+  ["fib(n) calls fib(n − 1) and fib(n − 2), which call the same values again and again. fib(40) makes over 300 million calls.",
+   "The call stack is at most n deep."],
+  ["Each fib(k) is computed once and then served from the cache.",
+   "The cache holds n answers, plus recursion depth n."],
+  ["One loop, n steps.",
+   "Only two numbers. This is the cheapest possible memory."]],
+"pascals-triangle": [
+  ["n rows hold about n² ÷ 2 numbers in total, and each comb() does up to n multiplications.",
+   "The triangle itself is about n² ÷ 2 numbers, and you have to return all of them."],
+  ["Each of the ~n² ÷ 2 numbers is a single addition of the two above it.",
+   "The triangle you return, about n² ÷ 2 numbers."]],
+"counting-bits": [
+  ["bin(i) has about log i characters, and it's built for every i up to n.",
+   "Each temporary string is small; only the output list is kept."],
+  ["One addition per number, reusing an answer already computed.",
+   "Only the output list."]]
+});
 
 
 /* ---------------- helpers ---------------- */
@@ -4193,6 +4854,64 @@ function renderProblem(){
   }).join("");
 }
 
+const STEPS = {"O(1)":"1 step","O(log n)":"about 10 steps","O(n)":"about 1,000 steps","O(n log n)":"about 10,000 steps","O(n²)":"about 1,000,000 steps","O(n³)":"about 1,000,000,000 steps","O(2ⁿ)":"more steps than atoms in the universe"};
+const MEM = {"O(1)":"a few variables","O(n)":"about 1,000 stored items","O(log n)":"about 10 stored items","O(n²)":"about 1,000,000 stored items"};
+const RULE_T = {
+  "O(1)":"Doubling the input changes nothing.",
+  "O(log n)":"Doubling the input adds just one more step.", "O(log x)":"Doubling x adds just one more step.", "O(log k)":"Doubling k adds just one more step.",
+  "O(log min(m,n))":"Doubling the shorter array adds just one more step.",
+  "O(n)":"Doubling the input doubles the work.", "O(n + m)":"Doubling both inputs doubles the work.", "O(m + n)":"Doubling both inputs doubles the work.",
+  "O(V + E)":"Double the nodes and edges, and the work doubles.", "O(m · n)":"Double the number of cells, and the work doubles.", "O(d)":"Each extra digit adds one more step.",
+  "O(n log n)":"Doubling the input slightly more than doubles the work.", "O(N log N)":"Doubling the input slightly more than doubles the work.",
+  "O(n²)":"Doubling the input makes it about 4× slower.", "O(n³)":"Doubling the input makes it about 8× slower.",
+  "O(2ⁿ)":"Adding just one more item doubles the work.", "O(n · 2ⁿ)":"Adding just one more item more than doubles the work.",
+  "O(S)":"Twice as many letters in total means twice the work.", "O(n · k)":"Double the words (or their length) and the work doubles.",
+  "O(n · m)":"Double one input and the work doubles; double both and it's 4×.", "O(n² · k)":"Doubling the number of items makes it about 4× slower.",
+  "O(n² · k log k)":"Doubling the number of words makes it about 4× slower.", "O(n · k log k)":"Doubling the number of words doubles the work.",
+  "O((m+n) log(m+n))":"Doubling the input slightly more than doubles the work.", "O(n · m log m)":"Doubling s2 doubles the work.",
+  "O(C(n, k) · k)":"A few more items makes the number of groups explode.",
+  "O(n) per query":"Each query gets twice as slow when the array doubles.", "O(1) per query":"Every query is instant, however big the array.",
+  "O(n) getMin":"getMin gets slower as the stack grows.", "O(1) all ops":"Every operation is instant, however big the stack gets.",
+  "O(n) pop":"Each pop gets slower as the queue grows.", "O(1) amortised":"Averaged out, every operation is instant.",
+  "O(√x)":"Four times bigger x only doubles the work.", "O(√n)":"Four times bigger input only doubles the work.",
+  "O(n · max)":"Doubling the biggest pile doubles the work.", "O(n log max)":"Doubling the biggest pile adds just one more round.",
+  "O(N log k)":"Doubling the nodes roughly doubles the work; k barely matters.", "O(n log k)":"Doubling the input roughly doubles the work; k barely matters.",
+  "O(n² log n)":"Doubling the input makes it more than 4× slower.", "O(n log n) per add":"Every add gets slower as more numbers arrive.",
+  "O(log k) per add":"Each add stays fast, however many numbers have arrived.", "O(E · α(V))":"Doubling the edges doubles the work.",
+  "O((m · n)²)":"Doubling the grid makes it about 4× slower.", "O(n · t)":"Double the people or the trust pairs and the work doubles.",
+  "O(n + t)":"Double the people and trust pairs and the work doubles.", "O(a · k)":"Doubling the amount doubles the work.",
+  "O(t · k · combos)":"Grows with how many combinations exist, which can be a lot.",
+  "O(k^(t/m))":"Exponential: a slightly bigger target multiplies the work.", "O(kᵃ)":"Exponential: a slightly bigger amount multiplies the work.",
+  "O(2^(m+n))":"Exponential: one more row or column doubles the work.", "O(3^(m+n))":"Exponential: one more letter can triple the work.",
+  "O(n · n!)":"Adding one more item multiplies the work by about n.", "O(n!)":"Adding one more item multiplies the work by about n."
+};
+const RULE_S = {
+  "O(1)":"Memory stays the same however big the input gets.", "O(1) extra":"Memory stays the same however big the input gets (the answer you return isn't counted).",
+  "O(n)":"Memory grows in step with the input.", "O(m)":"Memory grows with the size of the second input.", "O(n + m)":"Memory grows with both inputs.", "O(m+n)":"Memory grows with both inputs.",
+  "O(h)":"Memory grows with the tree's height, not its total size.", "O(w)":"Memory grows with the tree's widest level.",
+  "O(k)":"Memory depends on k, not on the full input.", "O(n) stack":"Memory grows in step with the input, held on the call stack.",
+  "O(n · k)":"Memory grows with the total number of letters.", "O(N)":"Memory grows with the total number of nodes.",
+  "O(V)":"Memory grows with the number of nodes, not the edges.", "O(min(m, n))":"Memory grows with the grid's shorter side.",
+  "O(t · combos)":"Memory grows with every partial combination stored.", "O(t/m)":"Memory grows with the length of the longest combination.",
+  "O(a)":"Memory grows with the amount.",
+  "O(m · n)":"Memory grows with the number of cells.", "O(d)":"Memory grows with the number of digits."
+};
+function renderCx(){
+  const {pr} = BY_ID[S.pid];
+  const ap = pr.approaches[S.ai];
+  const [whyT, whyS] = (CX[pr.id] || [])[S.ai] || ["", ""];
+  const best = pr.approaches[pr.approaches.length - 1];
+  const t = STEPS[ap.time], m = MEM[ap.space];
+  const cmp = S.ai < pr.approaches.length - 1
+    ? `The most optimal approach here is <b>${best.time}</b> time, <b>${best.space}</b> space.`
+    : pr.approaches.length > 1 ? `Compare with the first approach: <b>${pr.approaches[0].time}</b> time, <b>${pr.approaches[0].space}</b> space.` : "";
+  $("#cxbox").innerHTML = `
+    <div class="cx-head"><span>Why <b>${esc(ap.name)}</b> costs what it does. ${cmp}</span><button class="linkbtn" id="openPrimer">What do these mean?</button></div>
+    <div class="cx-item"><div class="cx-top"><span class="cx-k">Time</span><span class="cx-v">${ap.time}</span>${t ? `<span class="cx-scale">${t} when n = 1,000</span>` : ""}</div><p>${esc(whyT)}</p>${RULE_T[ap.time] ? `<p class="cx-rule">${RULE_T[ap.time]}</p>` : ""}</div>
+    <div class="cx-item"><div class="cx-top"><span class="cx-k">Space</span><span class="cx-v">${ap.space}</span>${m ? `<span class="cx-scale">${m} when n = 1,000</span>` : ""}</div><p>${esc(whyS)}</p>${RULE_S[ap.space] ? `<p class="cx-rule">${RULE_S[ap.space]}</p>` : ""}</div>`;
+  $("#openPrimer").onclick = () => { const d = $("#primer"); d.open = true; d.scrollIntoView({behavior: "smooth", block: "start"}); };
+}
+
 function renderBench(){
   const ap = BY_ID[S.pid].pr.approaches[S.ai];
   const res = S.checked ? S.checked.res : null;
@@ -4278,7 +4997,7 @@ function renderExplain(ap){
   }
 }
 
-function render(){ renderRail(); renderProblem(); renderBench(); }
+function render(){ renderRail(); renderProblem(); renderCx(); renderBench(); }
 
 /* ---------------- drag and drop (pointer events: mouse, pen, touch) ---------------- */
 let drag = null;
