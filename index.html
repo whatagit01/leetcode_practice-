@@ -165,6 +165,9 @@ body.dragging,body.dragging *{cursor:grabbing!important}
 
 
 
+/* Show code exactly as typed: no ligatures (== != //= -> etc.) */
+code,pre,.line,.example,.eyebrow,.dl,.step,.ap-cx b,.scale,.imports,.cx-v,.coach-h code,.walk-list code,.ptable code,.primer code{font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0,"dlig" 0}
+
 /* Complexity explainer */
 .cxbox{margin-top:12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .cx-item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
